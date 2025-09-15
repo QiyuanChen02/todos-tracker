@@ -1,26 +1,42 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { diffLines } from 'diff';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "activity-tracker" is now active!');
+	console.log('Activity tracker is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('activity-tracker.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from activity-tracker!');
+	const showTextCommand = vscode.commands.registerCommand('activity-tracker.showText', async () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const documentText = document.getText();
+			const documentKey = document.uri.toString();
+			const lastText = context.globalState.get<string>(documentKey, '');
+			if (lastText && lastText !== documentText) {
+				const diffs = diffLines(lastText, documentText);
+				let diffMessage = 'Changes since last check:\n';
+				diffs.forEach(part => {
+					const symbol = part.added ? '+' : part.removed ? '-' : '=';
+					const lines = part.value.split('\n');
+					lines.forEach(line => {
+						console.log(`Line: "${line}"`);
+						if (line !== '') {
+							diffMessage += `${symbol} ${line}\n`;
+						}
+					});
+				});
+				const doc = await vscode.workspace.openTextDocument({ content: diffMessage, language: 'diff' });
+				await vscode.window.showTextDocument(doc, { preview: false });
+			} else {
+				vscode.window.showInformationMessage('No changes since last check', { modal: true });
+			}
+			context.globalState.update(documentKey, documentText);
+		} else {
+			vscode.window.showInformationMessage('No active editor found');
+		}
 	});
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(showTextCommand);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
