@@ -16,6 +16,10 @@
       {
         "command": "activity-tracker.showText",
         "title": "Show Text"
+      },
+      {
+        "command": "activity-tracker.openStats",
+        "title": "Open Stats"
       }
     ]
   },

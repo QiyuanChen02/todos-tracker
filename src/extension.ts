@@ -1,42 +1,50 @@
 import * as vscode from 'vscode';
 import { diffLines } from 'diff';
+import { showText } from './commands/showTest';
 
 export function activate(context: vscode.ExtensionContext) {
 
 	console.log('Activity tracker is now active!');
 
-	const showTextCommand = vscode.commands.registerCommand('activity-tracker.showText', async () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			const document = editor.document;
-			const documentText = document.getText();
-			const documentKey = document.uri.toString();
-			const lastText = context.globalState.get<string>(documentKey, '');
-			if (lastText && lastText !== documentText) {
-				const diffs = diffLines(lastText, documentText);
-				let diffMessage = 'Changes since last check:\n';
-				diffs.forEach(part => {
-					const symbol = part.added ? '+' : part.removed ? '-' : '=';
-					const lines = part.value.split('\n');
-					lines.forEach(line => {
-						console.log(`Line: "${line}"`);
-						if (line !== '') {
-							diffMessage += `${symbol} ${line}\n`;
-						}
-					});
-				});
-				const doc = await vscode.workspace.openTextDocument({ content: diffMessage, language: 'diff' });
-				await vscode.window.showTextDocument(doc, { preview: false });
-			} else {
-				vscode.window.showInformationMessage('No changes since last check', { modal: true });
-			}
-			context.globalState.update(documentKey, documentText);
+	let currentPanel: vscode.WebviewPanel | undefined = undefined;
+
+	const showTextCommand = vscode.commands.registerCommand('activity-tracker.showText', () => showText(context));
+	const openStatsCommand = vscode.commands.registerCommand('activity-tracker.openStats', () => {
+
+		if (currentPanel) {
+			currentPanel.reveal(vscode.ViewColumn.One);
 		} else {
-			vscode.window.showInformationMessage('No active editor found');
+			currentPanel = vscode.window.createWebviewPanel(
+				'activityStats',
+				'Activity Stats',
+				vscode.ViewColumn.One,
+				{}
+			);
+			currentPanel.webview.html = getWebviewContent();
+
+			currentPanel.onDidDispose(() => {
+				currentPanel = undefined;
+			}, null, context.subscriptions);
 		}
 	});
 
+	context.subscriptions.push(openStatsCommand);
 	context.subscriptions.push(showTextCommand);
+}
+
+function getWebviewContent() {
+	return `<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Activity Stats</title>
+	</head>
+	<body>
+		<h1>Activity Stats</h1>
+		<p>This is where activity statistics will be displayed.</p>
+	</body>
+	</html>`;
 }
 
 export function deactivate() {}
