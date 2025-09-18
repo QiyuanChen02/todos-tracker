@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { showText } from './commands/showTest';
+import { parseRequests } from './webviewbackend';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -27,6 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 			);
 			currentPanel.webview.html = getWebviewContent(context, currentPanel.webview);
+
+            parseRequests(context, currentPanel);
 
 			currentPanel.onDidDispose(() => {
 				currentPanel = undefined;
