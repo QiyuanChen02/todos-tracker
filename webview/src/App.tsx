@@ -1,33 +1,68 @@
-import { useState } from 'react'
-import './App.css'
-import { useVSQuery } from './hooks/useVSQuery'
+import { useEffect, useState } from 'react';
+import './App.css';
+import { useVSQuery } from './hooks/useVSQuery';
+// @ts-ignore: VSCode API is injected at runtime
+import { vscodeAPI } from './hooks/useVSQuery';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { data, status, refresh } = useVSQuery<{ info: string, diff: string }>("showChanges");
 
-  const { data, status } = useVSQuery<any>("sample");
+  // Keep an array of file change snapshots. Each entry is { info, diff, timestamp }
+  const [fileChanges, setFileChanges] = useState<Array<{ info: string; diff: string; ts: string }>>(() => {
+    // Restore state from VSCode API if available
+    const savedState = vscodeAPI.getState();
+    return savedState?.fileChanges || [];
+  });
 
-  if (status === "loading") return <div>Loading...</div>;
+  useEffect(() => {
+    if (!data) return;
+    console.log('Data updated:', data);
+    // Append to fileChanges only when diff is non-empty (a change was detected)
+    if (data.diff) {
+      console.log('New change detected, updating history.');
+      setFileChanges(prev => {
+        const updated = [{ info: data.info, diff: data.diff, ts: new Date().toISOString() }, ...prev];
+        vscodeAPI.setState({ fileChanges: updated }); // Persist state
+        return updated;
+      });
+    }
+  }, [data]);
+
+  if (status === "loading" || !data) return <div>Loading...</div>;
 
   return (
     <>
-      <div>
-`        <h1>We have a message: {data!.info}</h1>
-      </div>
-      <h1>Vite + React</h1>
+      <h1>Show File Changes</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button onClick={() => refresh()}>
+            {fileChanges.length > 0 ? 'Refresh Changes' : 'Show File Changes'}
+          </button>
+          <button onClick={() => {
+            setFileChanges([]);
+            vscodeAPI.setState({ fileChanges: [] }); // Clear persisted state
+          }} disabled={fileChanges.length === 0}>
+            Clear History
+          </button>
+          <div style={{ marginLeft: 'auto', fontSize: 12, color: '#666' }}>{fileChanges.length} changes recorded</div>
+        </div>
+
+        {fileChanges.length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            {fileChanges.map((entry, idx) => (
+              <div key={entry.ts + idx} style={{ borderTop: '1px solid #eee', paddingTop: 8, marginTop: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <strong>{entry.info}</strong>
+                  <span style={{ fontSize: 12, color: '#888' }}>{new Date(entry.ts).toLocaleString()}</span>
+                </div>
+                <pre style={{ whiteSpace: 'pre-wrap', background: '#fafafa', padding: 8 }}>{entry.diff}</pre>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

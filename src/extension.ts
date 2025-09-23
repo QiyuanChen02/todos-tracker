@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { showText } from './commands/showTest';
 import { parseRequests } from './webviewbackend';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -10,7 +9,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
-	const showTextCommand = vscode.commands.registerCommand('activity-tracker.showText', () => showText(context));
 	const openStatsCommand = vscode.commands.registerCommand('activity-tracker.openStats', () => {
 
 		if (currentPanel) {
@@ -22,6 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.ViewColumn.One,
 				{
                     enableScripts: true,
+                    retainContextWhenHidden: true,
                     localResourceRoots: [
                         vscode.Uri.file(path.join(context.extensionPath, 'webview', 'dist'))
                     ],
@@ -38,7 +37,6 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(openStatsCommand);
-	context.subscriptions.push(showTextCommand);
 }
 
 function getWebviewContent(context: vscode.ExtensionContext, webview: vscode.Webview): string {
@@ -90,7 +88,6 @@ function getWebviewContent(context: vscode.ExtensionContext, webview: vscode.Web
         }
     );
 
-    // CSP (keep it simple)
     const cspMetaTag = `<meta http-equiv="Content-Security-Policy" content="default-src ${webview.cspSource}; script-src ${webview.cspSource} 'unsafe-inline' 'unsafe-eval'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data: https:;">`;
     
     htmlContent = htmlContent.replace('</head>', `${cspMetaTag}</head>`);
