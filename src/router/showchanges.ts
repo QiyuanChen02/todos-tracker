@@ -48,22 +48,30 @@ export const detectDeletedDiffs = (previousSnapshot: Record<string, string>, cur
 };
 
 // Main exported command that uses vscode APIs. Keeps the higher-level orchestration.
-export const showChanges = async (data?: any, context?: vscode.ExtensionContext) => {
-    console.log('Show Changes action executed with data:', data);
+export const showChanges = async (context?: vscode.ExtensionContext) => {
 
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
-        return { info: 'No workspace folder open', diff: null };
+        return { info: 'No workspace folder open', diff: '' };
     }
 
     // Use the first workspace folder by default
     const workspace = workspaceFolders[0];
     const snapshotKey = workspace.uri.toString();
 
-    // Load previous snapshot (map of relativePath -> text)
-    const previousSnapshot = context?.globalState.get(snapshotKey) as Record<string, string> || {};
+    // Log the snapshot key to ensure it matches during storage and retrieval
+    console.log('Snapshot Key:', snapshotKey);
 
-    // Find files to consider. Exclude node_modules and .git folders by default.
+    // Load previous snapshot (map of relativePath -> text)
+    const rawSnapshot = context?.globalState.get(snapshotKey);
+    console.log('Raw Snapshot:', rawSnapshot);
+
+    const previousSnapshot = rawSnapshot as Record<string, string> || {};
+    if (!rawSnapshot) {
+        console.warn('No previous snapshot found for key:', snapshotKey);
+    }
+
+    // Find files to consider. Exclude node_modules, .git folders, and package.json files by default.
     const files = await vscode.workspace.findFiles('**/*', '{**/node_modules/**,**/.git/**}');
 
     const currentSnapshot: Record<string, string> = {};

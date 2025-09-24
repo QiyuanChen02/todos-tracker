@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { computeDiffs, detectDeletedDiffs, formatDiff } from '../showchanges';
+import { computeDiffs, detectDeletedDiffs, formatDiff } from '../router/showchanges';
 
 suite('showChanges helpers', () => {
     test('formatDiff shows added, removed and unchanged lines', () => {
@@ -8,7 +8,6 @@ suite('showChanges helpers', () => {
         const out = formatDiff('some/file.txt', oldText, newText);
     // basic sanity checks
     assert.ok(out.includes('--- some/file.txt ---'));
-    // removed line2 should be present
     assert.ok(out.includes('- line2'));
     assert.ok(out.includes('+ line2-modified'));
     assert.ok(out.includes('+ line4'));
