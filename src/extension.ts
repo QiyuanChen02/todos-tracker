@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
+import * as vscode from 'vscode';
 
-import { attachRouterToPanel, createRouter, procedure } from './rpcHost';
 import { getWebviewContent } from './helpers/getWebviewContent';
 import { router } from './router/router';
+import { attachRouterToPanel } from './rpcHost';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
-	const openStatsCommand = vscode.commands.registerCommand('activity-tracker.openStats', () => {
+	const openStatsCommand = vscode.commands.registerCommand('activity-tracker.openStats', async () => {
 
 		if (currentPanel) {
 			currentPanel.reveal(vscode.ViewColumn.One);
@@ -26,13 +26,12 @@ export function activate(context: vscode.ExtensionContext) {
                     localResourceRoots: [
                         vscode.Uri.file(path.join(context.extensionPath, 'webview', 'dist'))
                     ],
+					portMapping: [{ webviewPort: 5173, extensionHostPort: 5173 }]
                 }
 			);
-			currentPanel.webview.html = getWebviewContent(context, currentPanel.webview);
+			currentPanel.webview.html = await getWebviewContent(context, currentPanel.webview);
 
             attachRouterToPanel(router, currentPanel, context, vscode);
-
-            // parseRequests(context, currentPanel);
 
 			currentPanel.onDidDispose(() => {
 				currentPanel = undefined;

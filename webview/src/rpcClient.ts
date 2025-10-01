@@ -1,5 +1,6 @@
-import { v4 as uuidv4 } from "uuid";
 import type { RpcMessage, RpcRequest } from "../../src/rpcProtocol";
+import type { RouterDef } from "../../src/rpcHost";
+import type { InputAtPath, OutputAtPath, PathKeys } from "./hooks/useRPC";
 
 declare global {
     interface Window {
@@ -24,8 +25,8 @@ window.addEventListener('message', (event) => {
     }
 });
 
-export function rpcCall<I, O>(path: string, input: I): Promise<O> {
-    const id = uuidv4();
+export function rpcCall<R extends RouterDef, P extends PathKeys<R>>(path: P, input: InputAtPath<R, P>): Promise<OutputAtPath<R, P>> {
+    const id = crypto.randomUUID();
     const req: RpcRequest = {
         kind: 'rpc/request',
         id,
@@ -33,5 +34,5 @@ export function rpcCall<I, O>(path: string, input: I): Promise<O> {
         input,
     }
     vscode.postMessage(req);
-    return new Promise<O>((resolve, reject) => pending.set(id, { resolve, reject }));
+    return new Promise((resolve, reject) => pending.set(id, { resolve, reject }));
 }

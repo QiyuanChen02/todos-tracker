@@ -3,11 +3,11 @@ import { useRPCQuery } from './hooks/useRPC';
 
 function App() {
   
-  const response = useRPCQuery<void, { info: string, diff: string }>("showChanges", undefined, { enabled: false });
+  const response = useRPCQuery("showChanges", undefined, { enabled: false });
 
   return (
     <>
-      <h1>Show File Changes</h1>
+      <h1>Show Changes</h1>
       <button onClick={() => response.refetch()}>Refresh</button>
       <div style={{ marginTop: '20px' }}>
         {response.isLoading && <p>Loading...</p>}
