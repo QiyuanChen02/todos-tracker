@@ -15,7 +15,7 @@ function App() {
 	const fetchThoughts = useCallback(async () => {
 		try {
 			const savedThoughts = await wrpc("getThoughts", undefined);
-			setThoughts(savedThoughts);
+			setThoughts(savedThoughts ?? []);
 		} catch (err) {
 			console.error("getThoughts failed:", err);
 		}
@@ -53,16 +53,20 @@ function App() {
 	}
 
 	return (
-		<div className="app">
-			<header className="app-header">
-				<h1>Activity Tracker — Daily Snapshot</h1>
-				<p className="subtitle">A place for a short thought.</p>
+		<div className="min-h-screen p-6 bg-surface text-text">
+			<header className="mb-6">
+				<h1 className="text-2xl md:text-3xl font-semibold">
+					Activity Tracker — Daily Snapshot
+				</h1>
+				<p className="text-sm mt-1 text-muted-text">
+					A place for a short thought.
+				</p>
 			</header>
 
-			<main className="grid">
-				<section className="card quick-thought">
-					<h2>Quick thought</h2>
-					<form onSubmit={handleSubmit}>
+			<main className="grid gap-6 md:grid-cols-2">
+				<section className="rounded-lg shadow-sm p-6 border border-divider bg-surface-2 text-text">
+					<h2 className="text-lg font-medium mb-3">Quick thought</h2>
+					<form onSubmit={handleSubmit} className="flex flex-col gap-3">
 						<label htmlFor="thought" className="sr-only">
 							Type a quick thought
 						</label>
@@ -74,21 +78,26 @@ function App() {
 							placeholder="Had an insight? Jot a quick thought..."
 							rows={4}
 							maxLength={280}
+							className="w-full p-3 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary border border-divider bg-transparent text-text placeholder-muted-text"
 						/>
-						<div className="controls">
-							<span className="count">{thought.length}/280</span>
-							<div className="buttons">
+						<div className="flex items-center justify-between">
+							<span className="text-sm text-muted-text">
+								{thought.length}/280
+							</span>
+
+							<div className="flex items-center gap-2">
 								<button
 									type="button"
-									className="btn ghost"
+									className="px-3 py-1 rounded text-sm border border-divider text-text bg-transparent disabled:opacity-50"
 									onClick={handleClear}
 									disabled={saving}
 								>
 									Clear
 								</button>
+
 								<button
 									type="submit"
-									className="btn primary"
+									className="px-4 py-1 rounded text-sm font-medium bg-primary-strong text-white hover:bg-primary disabled:opacity-50"
 									disabled={!thought.trim() || saving}
 								>
 									{saving ? "Saving…" : "Save"}
@@ -96,32 +105,40 @@ function App() {
 							</div>
 						</div>
 
-						{savedMessage && <div className="saved">{savedMessage}</div>}
-						{error && (
-							<div className="note" style={{ color: "var(--danger)" }}>
-								{error}
-							</div>
+						{savedMessage && (
+							<div className="text-sm mt-2 text-success">{savedMessage}</div>
 						)}
+						{error && <div className="text-sm mt-2 text-danger">{error}</div>}
 					</form>
+				</section>
+
+				<section className="rounded-lg shadow-sm p-6 border border-divider bg-surface-2 text-text">
+					<h2 className="text-lg font-medium mb-3">Saved thoughts</h2>
+
+					{thoughts.length === 0 ? (
+						<p className="text-muted-text">No thoughts saved yet.</p>
+					) : (
+						<ul className="space-y-3">
+							{thoughts.map((t) => (
+								<li
+									key={t.timestamp}
+									className="p-3 rounded-md border border-divider bg-transparent text-text"
+								>
+									<time
+										dateTime={t.timestamp}
+										className="text-xs block text-muted-text"
+									>
+										{new Date(t.timestamp).toLocaleString()}
+									</time>
+									<div className="mt-1">{t.text}</div>
+								</li>
+							))}
+						</ul>
+					)}
 				</section>
 			</main>
 
-			<section>
-				<h2>Saved thoughts</h2>
-				{thoughts.length === 0 ? (
-					<p>No thoughts saved yet.</p>
-				) : (
-					<ul>
-						{thoughts.map((t) => (
-							<li key={t.timestamp}>
-								<time dateTime={t.timestamp}>{t.timestamp}</time>: {t.text}
-							</li>
-						))}
-					</ul>
-				)}
-			</section>
-
-			<footer className="footer">
+			<footer className="mt-6 text-sm text-muted-text">
 				This UI communicates with the extension via wrpc ("saveThought").
 			</footer>
 		</div>
