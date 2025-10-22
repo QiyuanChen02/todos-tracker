@@ -1,56 +1,56 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "webview: build",
-      "type": "npm",
-      "script": "build",
-      "path": "webview",
-      "problemMatcher": [],
-      "presentation": { "reveal": "never" }
-    },
-    {
-      "label": "webview: dev",
-      "type": "npm",
-      "script": "dev",
-      "path": "webview",
-      "problemMatcher": [
-        {
-          // Match nothing for problems; we only use the background gate.
-          "pattern": { "regexp": "^(?!x)x" },
-          "background": {
-            "activeOnStart": true,
-            // Anything to mark "starting" (first line will do)
-            "beginsPattern": ".*",
-            "endsPattern": "ready in"
-          }
-        }
-      ],
-      "isBackground": true,
-      "runOptions": { "reevaluateOnRerun": false },
-      "presentation": { "reveal": "never" },
-    },
-    {
-      "label": "extension: watch",
-      "type": "npm",
-      "script": "watch",
-      "problemMatcher": "$tsc-watch",
-      "isBackground": true,
-      "presentation": { "reveal": "never" },
-      "group": "build"
-    },
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "webview: build",
+			"type": "npm",
+			"script": "build",
+			"path": "webview",
+			"problemMatcher": [],
+			"presentation": { "reveal": "never" }
+		},
+		{
+			"label": "webview: dev",
+			"type": "npm",
+			"script": "dev",
+			"path": "webview",
+			"problemMatcher": [
+				{
+					// Match nothing for problems; we only use the background gate.
+					"pattern": { "regexp": "^(?!x)x" },
+					"background": {
+						"activeOnStart": true,
+						// Anything to mark "starting" (first line will do)
+						"beginsPattern": ".*",
+						"endsPattern": ".*"
+					}
+				}
+			],
+			"isBackground": true,
+			"runOptions": { "reevaluateOnRerun": false },
+			"presentation": { "reveal": "never" }
+		},
+		{
+			"label": "extension: watch",
+			"type": "npm",
+			"script": "watch",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": { "reveal": "never" },
+			"group": "build"
+		},
 
-    {
-      "label": "dev",
-      "dependsOn": ["extension: watch", "webview: dev"],
-      "dependsOrder": "parallel",
-      "group": { "kind": "build", "isDefault": true }
-    },
-    // {
-    //   "label": "build+watch",
-    //   "dependsOn": ["webview: build", "extension: watch"],
-    //   "dependsOrder": "sequence",
-    //   "group": { "kind": "build", "isDefault": true }
-    // }
-  ]
+		{
+			"label": "dev",
+			"dependsOn": ["extension: watch", "webview: dev"],
+			"dependsOrder": "parallel",
+			"group": { "kind": "build", "isDefault": true }
+		}
+		// {
+		//   "label": "build+watch",
+		//   "dependsOn": ["webview: build", "extension: watch"],
+		//   "dependsOrder": "sequence",
+		//   "group": { "kind": "build", "isDefault": true }
+		// }
+	]
 }
