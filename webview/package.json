@@ -12,6 +12,8 @@
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.15",
 		"@tanstack/react-query": "^5.90.2",
+		"@webview-rpc/client": "^1.0.7",
+		"@webview-rpc/react-query": "^1.0.8",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"tailwindcss": "^4.1.15"

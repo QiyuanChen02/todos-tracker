@@ -1,49 +1,34 @@
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { wrpc } from "./wrpc";
 
-function App() {
+export default function App() {
 	const [thought, setThought] = useState("");
-	const [saving, setSaving] = useState(false);
 	const [savedMessage, setSavedMessage] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const [thoughts, setThoughts] = useState<
-		{ text: string; timestamp: string }[]
-	>([]);
+	const { data: thoughts, isLoading } = wrpc.useQuery("getThoughts", undefined);
 
-	const fetchThoughts = useCallback(async () => {
-		try {
-			const savedThoughts = await wrpc("getThoughts", undefined);
-			setThoughts(savedThoughts ?? []);
-		} catch (err) {
-			console.error("getThoughts failed:", err);
-		}
-	}, []);
-
-	useEffect(() => {
-		fetchThoughts();
-	}, [fetchThoughts]);
+	const qc = wrpc.useUtils();
+	const saveMutation = wrpc.useMutation("saveThought", {
+		onSuccess: () => {
+			setSavedMessage("Saved");
+			setThought("");
+			void qc.invalidate("getThoughts");
+			setTimeout(() => setSavedMessage(null), 1500);
+		},
+		onError: (err) => {
+			console.error("saveThought failed:", err);
+			setError("Save failed");
+			setSavedMessage(null);
+		},
+	});
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		if (!thought.trim()) return;
-		setSaving(true);
 		setError(null);
-
-		try {
-			await wrpc("saveThought", { text: thought.trim() });
-			setSavedMessage("Saved");
-			setThought("");
-		} catch (err) {
-			console.error("saveThought failed:", err);
-			setError("Save failed");
-			setSavedMessage(null);
-		} finally {
-			setSaving(false);
-			setTimeout(() => setSavedMessage(null), 1500);
-			fetchThoughts();
-		}
+		await saveMutation.mutateAsync({ text: thought.trim() });
 	}
 
 	function handleClear() {
@@ -51,6 +36,8 @@ function App() {
 		setSavedMessage(null);
 		setError(null);
 	}
+
+	if (isLoading || !thoughts) return;
 
 	return (
 		<div className="min-h-screen p-6 bg-surface text-text">
@@ -90,7 +77,6 @@ function App() {
 									type="button"
 									className="px-3 py-1 rounded text-sm border border-divider text-text bg-transparent disabled:opacity-50"
 									onClick={handleClear}
-									disabled={saving}
 								>
 									Clear
 								</button>
@@ -98,9 +84,9 @@ function App() {
 								<button
 									type="submit"
 									className="px-4 py-1 rounded text-sm font-medium bg-primary-strong text-white hover:bg-primary disabled:opacity-50"
-									disabled={!thought.trim() || saving}
+									disabled={!thought.trim() || saveMutation.isPending}
 								>
-									{saving ? "Saving…" : "Save"}
+									{saveMutation.isPending ? "Saving…" : "Save"}
 								</button>
 							</div>
 						</div>
@@ -115,11 +101,13 @@ function App() {
 				<section className="rounded-lg shadow-sm p-6 border border-divider bg-surface-2 text-text">
 					<h2 className="text-lg font-medium mb-3">Saved thoughts</h2>
 
-					{thoughts.length === 0 ? (
+					{isLoading ? (
+						<p className="text-muted-text">Loading...</p>
+					) : thoughts.length === 0 ? (
 						<p className="text-muted-text">No thoughts saved yet.</p>
 					) : (
 						<ul className="space-y-3">
-							{thoughts.map((t) => (
+							{(thoughts as { text: string; timestamp: string }[]).map((t) => (
 								<li
 									key={t.timestamp}
 									className="p-3 rounded-md border border-divider bg-transparent text-text"
@@ -137,12 +125,6 @@ function App() {
 					)}
 				</section>
 			</main>
-
-			<footer className="mt-6 text-sm text-muted-text">
-				This UI communicates with the extension via wrpc ("saveThought").
-			</footer>
 		</div>
 	);
 }
-
-export default App;

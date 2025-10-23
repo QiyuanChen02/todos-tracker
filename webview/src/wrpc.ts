@@ -1,4 +1,6 @@
-import { createRpcClient } from "@webview-rpc/client";
-import type { AppRouter } from "../../src/router/router";
+import { createWrpcClient } from "@webview-rpc/client";
+import { withReactQuery } from "@webview-rpc/react-query";
 
-export const wrpc = createRpcClient<AppRouter>();
+import type { AppRouter } from "../../src/router/router"
+
+export const wrpc = withReactQuery<AppRouter>(createWrpcClient<AppRouter>());
