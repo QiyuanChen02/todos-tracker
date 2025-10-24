@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/useTemplate: String concatenation is nicer in this case */
 import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -6,56 +7,75 @@ import * as vscode from "vscode";
 const DEV_PORT = 5173;
 const DEV_ENTRY = "/src/main.tsx";
 
-export async function getWebviewContent(
-	context: vscode.ExtensionContext,
+interface DevUris {
+	refreshUri: vscode.Uri;
+	clientUri: vscode.Uri;
+	entryUri: vscode.Uri;
+	origin: string;
+	wsOrigin: string;
+}
+
+function createBaseCSP(webview: vscode.Webview): string[] {
+	return [
+		`default-src 'none'`,
+		`img-src ${webview.cspSource} https: data:`,
+		`style-src ${webview.cspSource} 'unsafe-inline'`,
+		`font-src ${webview.cspSource}`,
+		`frame-src ${webview.cspSource} https:`,
+		`child-src ${webview.cspSource} https:`,
+	];
+}
+
+function createDevCSP(
 	webview: vscode.Webview,
-) {
-	const isDev = context.extensionMode === vscode.ExtensionMode.Development;
-
-	// Strong random nonce
-	const nonce = randomUUID();
-
-	const cspBase =
+	nonce: string,
+	origin: string,
+	wsOrigin: string,
+): string {
+	return (
 		[
-			`default-src 'none'`,
-			`img-src ${webview.cspSource} https: data:`,
-			`style-src ${webview.cspSource} 'unsafe-inline'`,
-			`font-src ${webview.cspSource}`,
-		].join("; ") + ";";
+			...createBaseCSP(webview),
+			`script-src 'nonce-${nonce}' 'unsafe-eval' ${origin}`,
+			`connect-src ${origin} ${wsOrigin} ws://localhost:${DEV_PORT} ws://127.0.0.1:${DEV_PORT}`,
+		].join("; ") + ";"
+	);
+}
 
-	if (isDev) {
-		// Map FULL URLs via asExternalUri (important in remote/containers)
-		const refreshLocal = vscode.Uri.parse(
-			`http://localhost:${DEV_PORT}/@react-refresh`,
-		);
-		const clientLocal = vscode.Uri.parse(
-			`http://localhost:${DEV_PORT}/@vite/client`,
-		);
-		const entryLocal = vscode.Uri.parse(
-			`http://localhost:${DEV_PORT}${DEV_ENTRY}`,
-		);
+function createProdCSP(webview: vscode.Webview, nonce: string): string {
+	return (
+		[
+			...createBaseCSP(webview),
+			`script-src 'nonce-${nonce}' ${webview.cspSource}`,
+			`connect-src ${webview.cspSource}`,
+		].join("; ") + ";"
+	);
+}
 
-		const [refreshUri, clientUri, entryUri] = await Promise.all([
-			vscode.env.asExternalUri(refreshLocal),
-			vscode.env.asExternalUri(clientLocal),
-			vscode.env.asExternalUri(entryLocal),
-		]);
+async function getDevUris(): Promise<DevUris> {
+	const refreshLocal = vscode.Uri.parse(
+		`http://localhost:${DEV_PORT}/@react-refresh`,
+	);
+	const clientLocal = vscode.Uri.parse(
+		`http://localhost:${DEV_PORT}/@vite/client`,
+	);
+	const entryLocal = vscode.Uri.parse(
+		`http://localhost:${DEV_PORT}${DEV_ENTRY}`,
+	);
 
-		const origin = `${clientUri.scheme}://${clientUri.authority}`;
-		const wsOrigin = origin.replace(/^http/, "ws");
+	const [refreshUri, clientUri, entryUri] = await Promise.all([
+		vscode.env.asExternalUri(refreshLocal),
+		vscode.env.asExternalUri(clientLocal),
+		vscode.env.asExternalUri(entryLocal),
+	]);
 
-		const csp =
-			[
-				`default-src 'none'`,
-				`img-src ${webview.cspSource} https: data:`,
-				`style-src ${webview.cspSource} 'unsafe-inline'`,
-				`font-src ${webview.cspSource}`,
-				// 'unsafe-eval' is needed in DEV for React Fast Refresh
-				`script-src 'nonce-${nonce}' 'unsafe-eval' ${origin}`,
-				`connect-src ${origin} ${wsOrigin} ws://localhost:${DEV_PORT} ws://127.0.0.1:${DEV_PORT}`,
-			].join("; ") + ";";
+	const origin = `${clientUri.scheme}://${clientUri.authority}`;
+	const wsOrigin = origin.replace(/^http/, "ws");
 
-		return `
+	return { refreshUri, clientUri, entryUri, origin, wsOrigin };
+}
+
+function createDevHTML(nonce: string, uris: DevUris, csp: string): string {
+	return `
     <!doctype html>
     <html>
         <head>
@@ -67,34 +87,28 @@ export async function getWebviewContent(
         <body>
         <div id="root"></div>
 
-        <!-- 1) React Refresh preamble (must come first) -->
         <script type="module" nonce="${nonce}">
-            import RefreshRuntime from "${refreshUri.toString(true)}";
+            import RefreshRuntime from "${uris.refreshUri.toString(true)}";
             RefreshRuntime.injectIntoGlobalHook(window);
             window.$RefreshReg$ = () => {};
             window.$RefreshSig$ = () => (type) => type;
             window.__vite_plugin_react_preamble_installed__ = true;
         </script>
 
-        <!-- 2) Vite HMR client -->
-        <script type="module" nonce="${nonce}" src="${clientUri.toString(true)}"></script>
-
-        <!-- 3) Your app entry -->
-        <script type="module" nonce="${nonce}" src="${entryUri.toString(true)}"></script>
+        <script type="module" nonce="${nonce}" src="${uris.clientUri.toString(true)}"></script>
+        <script type="module" nonce="${nonce}" src="${uris.entryUri.toString(true)}"></script>
         </body>
     </html>
     `;
-	}
-	const htmlPath = path.join(
-		context.extensionPath,
-		"webview",
-		"dist",
-		"index.html",
-	);
-	const distPath = path.join(context.extensionPath, "webview", "dist");
-	let htmlContent = fs.readFileSync(htmlPath, "utf8");
+}
 
-	htmlContent = htmlContent.replace(
+function processProductionHtml(
+	htmlContent: string,
+	webview: vscode.Webview,
+	distPath: string,
+	nonce: string,
+): string {
+	const processedHtml = htmlContent.replace(
 		/(href|src)=["']([^"']*)["']/g,
 		(match, attr, url) => {
 			if (
@@ -105,8 +119,6 @@ export async function getWebviewContent(
 			) {
 				return match;
 			}
-
-			// Handle relative paths safely
 			const clean = url.replace(/^\//, "");
 			const onDisk = vscode.Uri.file(path.join(distPath, clean));
 			const webviewUri = webview.asWebviewUri(onDisk).toString();
@@ -114,21 +126,40 @@ export async function getWebviewContent(
 		},
 	);
 
-	const prodCsp = `
-        ${cspBase}
-        script-src 'nonce-${nonce}' ${webview.cspSource};
-        connect-src ${webview.cspSource};
-    `.replace(/\n+/g, " ");
+	const csp = createProdCSP(webview, nonce);
 
-	// Inject CSP + nonce onto any module scripts (if you want to enforce nonce)
-	const html = htmlContent
+	return processedHtml
 		.replace(
 			"</head>",
-			`<meta http-equiv="Content-Security-Policy" content="${prodCsp}"></head>`,
+			`<meta http-equiv="Content-Security-Policy" content="${csp}"></head>`,
 		)
 		.replace(
 			/<script([^>]*)type="module"([^>]*)>/g,
 			`<script$1type="module"$2 nonce="${nonce}">`,
 		);
-	return html;
+}
+
+export async function getWebviewContent(
+	context: vscode.ExtensionContext,
+	webview: vscode.Webview,
+): Promise<string> {
+	const isDev = context.extensionMode === vscode.ExtensionMode.Development;
+	const nonce = randomUUID();
+
+	if (isDev) {
+		const uris = await getDevUris();
+		const csp = createDevCSP(webview, nonce, uris.origin, uris.wsOrigin);
+		return createDevHTML(nonce, uris, csp);
+	}
+
+	const htmlPath = path.join(
+		context.extensionPath,
+		"webview",
+		"dist",
+		"index.html",
+	);
+	const distPath = path.join(context.extensionPath, "webview", "dist");
+	const htmlContent = fs.readFileSync(htmlPath, "utf8");
+
+	return processProductionHtml(htmlContent, webview, distPath, nonce);
 }
