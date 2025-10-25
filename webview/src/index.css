@@ -26,4 +26,9 @@
   --color-primary: var(--color-accent);
   --color-primary-strong: var(--color-accent-strong);
   --color-divider: var(--color-border);
+
+  /* Kanban board specific colors */
+  --color-card: var(--vscode-editor-background, #2d2d30);
+  --color-column-bg: var(--vscode-sideBar-background, #252526);
+  --color-column-header: var(--vscode-sideBarSectionHeader-background, #2d2d30);
 }

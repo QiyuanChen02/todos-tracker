@@ -1,130 +1,79 @@
-import type React from "react";
-import { useState } from "react";
+/** biome-ignore-all lint/correctness/useUniqueElementIds: Easier */
+
+import type { TodoItem } from "../../src/commands/scanTodos";
+import { BoardColumn } from "./components/BoardColumn";
+import { TodoCard } from "./components/TodoCard";
+import { useUpdates } from "./hooks/useUpdates";
 import { wrpc } from "./wrpc";
 
+interface TodoWithStatus extends TodoItem {
+	status: "todo" | "in-progress" | "done";
+}
+
 export default function App() {
-	const [thought, setThought] = useState("");
-	const [savedMessage, setSavedMessage] = useState<string | null>(null);
-	const [error, setError] = useState<string | null>(null);
+	// Mock data - replace with actual data from your extension
+	const { data, refetch } = wrpc.useQuery("fetchTodos", undefined);
 
-	const { data: thoughts, isLoading } = wrpc.useQuery("getThoughts", undefined);
+	// Update: Use data directly instead of storing in separate state
+	const todos: TodoWithStatus[] = data
+		? data.map((todo) => ({
+				...todo,
+				status: "todo" as const,
+			}))
+		: [];
 
-	const qc = wrpc.useUtils();
-	const saveMutation = wrpc.useMutation("saveThought", {
-		onSuccess: () => {
-			setSavedMessage("Saved");
-			setThought("");
-			void qc.invalidate("getThoughts");
-			setTimeout(() => setSavedMessage(null), 1500);
-		},
-		onError: (err) => {
-			console.error("saveThought failed:", err);
-			setError("Save failed");
-			setSavedMessage(null);
-		},
-	});
+	useUpdates(refetch, "todosUpdated");
 
-	async function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
-		if (!thought.trim()) return;
-		setError(null);
-		await saveMutation.mutateAsync({ text: thought.trim() });
-	}
-
-	function handleClear() {
-		setThought("");
-		setSavedMessage(null);
-		setError(null);
-	}
-
-	if (isLoading || !thoughts) return;
+	// Filter todos by status
+	const todoItems = todos.filter((todo) => todo.status === "todo");
+	const inProgressItems = todos.filter((todo) => todo.status === "in-progress");
+	const doneItems = todos.filter((todo) => todo.status === "done");
 
 	return (
-		<div className="min-h-screen p-6 bg-surface text-text">
-			<header className="mb-6">
-				<h1 className="text-2xl md:text-3xl font-semibold">
-					Activity Tracker — Daily Snapshot
-				</h1>
-				<p className="text-sm mt-1 text-muted-text">
-					A place for a short thought.
-				</p>
-			</header>
+		<div className="h-screen bg-background p-6">
+			<div className="h-full max-w-7xl mx-auto">
+				<header className="mb-6">
+					<h1 className="text-2xl font-bold text-text mb-2">TODOs Tracker</h1>
+					<p className="text-muted-text">
+						Manage your code TODOs across your workspace
+					</p>
+				</header>
 
-			<main className="grid gap-6 md:grid-cols-2">
-				<section className="rounded-lg shadow-sm p-6 border border-divider bg-surface-2 text-text">
-					<h2 className="text-lg font-medium mb-3">Quick thought</h2>
-					<form onSubmit={handleSubmit} className="flex flex-col gap-3">
-						<label htmlFor="thought" className="sr-only">
-							Type a quick thought
-						</label>
-						{/** biome-ignore lint/correctness/useUniqueElementIds: false positive */}
-						<textarea
-							id="thought"
-							value={thought}
-							onChange={(e) => setThought(e.target.value)}
-							placeholder="Had an insight? Jot a quick thought..."
-							rows={4}
-							maxLength={280}
-							className="w-full p-3 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary border border-divider bg-transparent text-text placeholder-muted-text"
-						/>
-						<div className="flex items-center justify-between">
-							<span className="text-sm text-muted-text">
-								{thought.length}/280
-							</span>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+					<BoardColumn
+						id="todo"
+						title="To Do"
+						count={todoItems.length}
+						statusColor="todo"
+					>
+						{todoItems.map((todo) => (
+							<TodoCard key={todo.id} {...todo} />
+						))}
+					</BoardColumn>
 
-							<div className="flex items-center gap-2">
-								<button
-									type="button"
-									className="px-3 py-1 rounded text-sm border border-divider text-text bg-transparent disabled:opacity-50"
-									onClick={handleClear}
-								>
-									Clear
-								</button>
+					<BoardColumn
+						id="in-progress"
+						title="In Progress"
+						count={inProgressItems.length}
+						statusColor="in-progress"
+					>
+						{inProgressItems.map((todo) => (
+							<TodoCard key={todo.id} {...todo} />
+						))}
+					</BoardColumn>
 
-								<button
-									type="submit"
-									className="px-4 py-1 rounded text-sm font-medium bg-primary-strong text-white hover:bg-primary disabled:opacity-50"
-									disabled={!thought.trim() || saveMutation.isPending}
-								>
-									{saveMutation.isPending ? "Saving…" : "Save"}
-								</button>
-							</div>
-						</div>
-
-						{savedMessage && (
-							<div className="text-sm mt-2 text-success">{savedMessage}</div>
-						)}
-						{error && <div className="text-sm mt-2 text-danger">{error}</div>}
-					</form>
-				</section>
-
-				<section className="rounded-lg shadow-sm p-6 border border-divider bg-surface-2 text-text">
-					<h2 className="text-lg font-medium mb-3">Saved thoughts</h2>
-
-					{isLoading ? (
-						<p className="text-muted-text">Loading...</p>
-					) : thoughts.length === 0 ? (
-						<p className="text-muted-text">No thoughts saved yet.</p>
-					) : (
-						<ul className="space-y-3">
-							{(thoughts as { text: string; timestamp: string }[]).map((t) => (
-								<li
-									key={t.timestamp}
-									className="p-3 rounded-md border border-divider bg-transparent text-text"
-								>
-									<time
-										dateTime={t.timestamp}
-										className="text-xs block text-muted-text"
-									>
-										{new Date(t.timestamp).toLocaleString()}
-									</time>
-									<div className="mt-1">{t.text}</div>
-								</li>
-							))}
-						</ul>
-					)}
-				</section>
-			</main>
+					<BoardColumn
+						id="done"
+						title="Done"
+						count={doneItems.length}
+						statusColor="done"
+					>
+						{doneItems.map((todo) => (
+							<TodoCard key={todo.id} {...todo} />
+						))}
+					</BoardColumn>
+				</div>
+			</div>
 		</div>
 	);
 }

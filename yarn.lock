@@ -382,21 +382,21 @@ __metadata:
   linkType: hard
 
 "@webview-rpc/host@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "@webview-rpc/host@npm:1.0.7"
+  version: 1.0.8
+  resolution: "@webview-rpc/host@npm:1.0.8"
   dependencies:
-    "@webview-rpc/shared": 1.0.7
+    "@webview-rpc/shared": 1.0.8
     zod: ^4.1.11
-  checksum: 2fa7e64f2fa5858f6a23448826bfa7b51c0a78573e74bbc96f0ba9bae0ca771de688b4d072f28d21af4a0caf29a9805ee94843bc402fe8b9a0c579f4dea11c2b
+  checksum: eebc4e77e159229d6dad919ce0d16e71708fc3a2afaa5eb39cf8ce75bf47338d9b05c405dbd84104a68e6958e467e7ccb8b7744387d2f3a69c87652d4c7b9ab7
   languageName: node
   linkType: hard
 
-"@webview-rpc/shared@npm:1.0.7":
-  version: 1.0.7
-  resolution: "@webview-rpc/shared@npm:1.0.7"
+"@webview-rpc/shared@npm:1.0.8":
+  version: 1.0.8
+  resolution: "@webview-rpc/shared@npm:1.0.8"
   dependencies:
     zod: ^4.1.11
-  checksum: 5d95768c616ff7546277f8f0ea0fc99155277c14f957b7452817ea85036a967e3dcc09fbcc40d03e8bef99ec21537481e1c329cc3b96cb58c0d65ec61bb77172
+  checksum: 10607dbf47e79218117814fd25d893391d40241685408bcb96e6a3991e6da532cd9c65e6c3ca17971a76dfd14fe50fdb4f638d57ba57f401e4e025340eb3b6a3
   languageName: node
   linkType: hard
 

@@ -1,54 +1,19 @@
-import * as path from "node:path";
-import { attachRouterToPanel } from "@webview-rpc/host";
-import * as vscode from "vscode";
-import { getWebviewContent } from "./helpers/getWebviewContent.js";
-import { appRouter } from "./router/router.js";
+import type * as vscode from "vscode";
+import {
+	createStatusBarItem,
+	registerOpenWebviewCommand,
+} from "./commands/openWebview.js";
+import { registerTodoScanning } from "./commands/scanTodos.js";
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	console.log("Activity tracker is now active!");
 
-	let currentPanel: vscode.WebviewPanel | undefined;
+	// TODO/FIXME scanning
+	await registerTodoScanning(context);
 
-	const openStatsCommand = vscode.commands.registerCommand(
-		"activity-tracker.openStats",
-		async () => {
-			if (currentPanel) {
-				currentPanel.reveal(vscode.ViewColumn.One);
-			} else {
-				currentPanel = vscode.window.createWebviewPanel(
-					"activityStats",
-					"Activity Stats",
-					vscode.ViewColumn.One,
-					{
-						enableScripts: true,
-						retainContextWhenHidden: true,
-						localResourceRoots: [
-							vscode.Uri.file(
-								path.join(context.extensionPath, "webview", "dist"),
-							),
-						],
-						portMapping: [{ webviewPort: 5173, extensionHostPort: 5173 }],
-					},
-				);
-				currentPanel.webview.html = await getWebviewContent(
-					context,
-					currentPanel.webview,
-				);
-
-				attachRouterToPanel(appRouter, currentPanel, context);
-
-				currentPanel.onDidDispose(
-					() => {
-						currentPanel = undefined;
-					},
-					null,
-					context.subscriptions,
-				);
-			}
-		},
-	);
-
-	context.subscriptions.push(openStatsCommand);
+	// Webview command + status bar UI
+	registerOpenWebviewCommand(context);
+	createStatusBarItem(context);
 }
 
 export function deactivate() {}

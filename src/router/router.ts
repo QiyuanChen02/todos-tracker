@@ -1,10 +1,12 @@
 import { initWRPC } from "@webview-rpc/host";
 import type * as vscode from "vscode";
 import z from "zod";
+import type { TodoItem } from "../commands/scanTodos.js";
 
 const { router, procedure } = initWRPC.create();
 
 const STORAGE_KEY = "quickThoughts";
+const TODOS_STORAGE_KEY = "activeTodos";
 
 async function readThoughts(store: vscode.Memento) {
 	const thoughts =
@@ -39,6 +41,14 @@ export const appRouter = router({
 			});
 			await writeThoughts(ctx.context.workspaceState, thoughts);
 		}),
+
+	fetchTodos: procedure.resolve(async ({ ctx }) => {
+		const todos = ctx.context.workspaceState.get<TodoItem[]>(
+			TODOS_STORAGE_KEY,
+			[],
+		);
+		return todos;
+	}),
 });
 
 export type AppRouter = typeof appRouter;
