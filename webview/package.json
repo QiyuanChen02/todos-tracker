@@ -14,17 +14,17 @@
 		"@dnd-kit/sortable": "^10.0.0",
 		"@tailwindcss/vite": "^4.1.15",
 		"@tanstack/react-query": "^5.90.2",
-		"@webview-rpc/client": "^1.0.7",
-		"@webview-rpc/react-query": "^1.0.8",
-		"react": "^19.1.1",
-		"react-dom": "^19.1.1",
-		"tailwindcss": "^4.1.15"
+		"@webview-rpc/client": "^1.0.15",
+		"@webview-rpc/react-query": "^1.0.15",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"tailwindcss": "^4.1.16"
 	},
 	"devDependencies": {
 		"@types/react": "^19.1.10",
 		"@types/react-dom": "^19.1.7",
 		"@vitejs/plugin-react-swc": "^4.0.0",
-		"typescript": "~5.8.3",
-		"vite": "^7.1.2"
+		"typescript": "^5.9.3",
+		"vite": "^7.1.12"
 	}
 }

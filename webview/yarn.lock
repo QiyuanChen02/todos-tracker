@@ -892,52 +892,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@webview-rpc/client@npm:1.0.8":
-  version: 1.0.8
-  resolution: "@webview-rpc/client@npm:1.0.8"
+"@webview-rpc/client@npm:1.0.15, @webview-rpc/client@npm:^1.0.15":
+  version: 1.0.15
+  resolution: "@webview-rpc/client@npm:1.0.15"
   dependencies:
-    "@webview-rpc/shared": 1.0.8
-  checksum: d9dc93ea41b0629cdbbf615f43f4e9b94daeeebb7afd7f08143a7b046d921a7da4b176daeeefad121b19c22df8a22873279bb730166b8ba09f0331af31a17ab0
+    "@webview-rpc/shared": 1.0.15
+  checksum: 8322e9620f197a9d07dc9fe787da102151a71ced9be389fd0247438f0b42a8e5d6a9492ac380efe645483d666df4f2de88fb418523a4d42255a720f16d72e243
   languageName: node
   linkType: hard
 
-"@webview-rpc/client@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "@webview-rpc/client@npm:1.0.7"
-  dependencies:
-    "@webview-rpc/shared": 1.0.7
-  checksum: e1d9e064366ffbed675064e326e3066a0fb75813ae86f8d20ebf0f8b0ee3e67dc6886c22fb606557b6c53e2252974efac2f2e26e928a051a2679cb67ff97c7a7
-  languageName: node
-  linkType: hard
-
-"@webview-rpc/react-query@npm:^1.0.8":
-  version: 1.0.8
-  resolution: "@webview-rpc/react-query@npm:1.0.8"
+"@webview-rpc/react-query@npm:^1.0.15":
+  version: 1.0.15
+  resolution: "@webview-rpc/react-query@npm:1.0.15"
   dependencies:
     "@tanstack/react-query": ^5.90.5
-    "@webview-rpc/client": 1.0.8
-    "@webview-rpc/shared": 1.0.8
+    "@webview-rpc/client": 1.0.15
+    "@webview-rpc/shared": 1.0.15
     react: ^19.2.0
     zod: ^4.1.11
-  checksum: f61c28199f66f4396fb814f1388c44a8c1934ff53db062a6f5f4bfb406c6bd2d20b89e7e52f0fbc83f8d1a155617d3a6606dcbd4f754815dc88e4649250302a3
+  checksum: 9ccfbfd0222c91a22ac96f66d3e74efb76e78a700095979fde39746a4bd7546be5145497646e5a4d8358af77d174571c924a8307c5dedf8a1d4762077dee8211
   languageName: node
   linkType: hard
 
-"@webview-rpc/shared@npm:1.0.7":
-  version: 1.0.7
-  resolution: "@webview-rpc/shared@npm:1.0.7"
+"@webview-rpc/shared@npm:1.0.15":
+  version: 1.0.15
+  resolution: "@webview-rpc/shared@npm:1.0.15"
   dependencies:
     zod: ^4.1.11
-  checksum: 5d95768c616ff7546277f8f0ea0fc99155277c14f957b7452817ea85036a967e3dcc09fbcc40d03e8bef99ec21537481e1c329cc3b96cb58c0d65ec61bb77172
-  languageName: node
-  linkType: hard
-
-"@webview-rpc/shared@npm:1.0.8":
-  version: 1.0.8
-  resolution: "@webview-rpc/shared@npm:1.0.8"
-  dependencies:
-    zod: ^4.1.11
-  checksum: 10607dbf47e79218117814fd25d893391d40241685408bcb96e6a3991e6da532cd9c65e6c3ca17971a76dfd14fe50fdb4f638d57ba57f401e4e025340eb3b6a3
+  checksum: 59d37b84d481d3b64c05ea62947a07e3130c2a19e18a7efc75043c2f627ea4826b6dccecf94346cf943569453987bcc63c92737b3c569f5ce85560e369ababea
   languageName: node
   linkType: hard
 
@@ -1764,7 +1746,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^19.1.1":
+"react-dom@npm:^19.2.0":
   version: 19.2.0
   resolution: "react-dom@npm:19.2.0"
   dependencies:
@@ -1775,7 +1757,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^19.1.1, react@npm:^19.2.0":
+"react@npm:^19.2.0":
   version: 19.2.0
   resolution: "react@npm:19.2.0"
   checksum: 33dd01bf699e1c5040eb249e0f552519adf7ee90b98c49d702a50bf23af6852ea46023a5f7f93966ab10acd7a45428fa0f193c686ecdaa7a75a03886e53ec3fe
@@ -2000,10 +1982,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:4.1.15, tailwindcss@npm:^4.1.15":
+"tailwindcss@npm:4.1.15":
   version: 4.1.15
   resolution: "tailwindcss@npm:4.1.15"
   checksum: 988fef55192d8c07224ce338b4d4d748406b8681175620fbdade9dae6ee3dfc5145e738fdaa937c610f73e488deb480c893a1f3e34110f23384db5f0f5b664e7
+  languageName: node
+  linkType: hard
+
+"tailwindcss@npm:^4.1.16":
+  version: 4.1.16
+  resolution: "tailwindcss@npm:4.1.16"
+  checksum: 04081aeb7cdb38834974a19d65802890370d37358332375ae81085b0be3dc202b85d496442cd2f10ae9bda3e039feedb1d9968236bdec2b188efebda504282d5
   languageName: node
   linkType: hard
 
@@ -2044,23 +2033,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~5.8.3":
-  version: 5.8.3
-  resolution: "typescript@npm:5.8.3"
+"typescript@npm:^5.9.3":
+  version: 5.9.3
+  resolution: "typescript@npm:5.9.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: cb1d081c889a288b962d3c8ae18d337ad6ee88a8e81ae0103fa1fecbe923737f3ba1dbdb3e6d8b776c72bc73bfa6d8d850c0306eed1a51377d2fccdfd75d92c4
+  checksum: 0d0ffb84f2cd072c3e164c79a2e5a1a1f4f168e84cb2882ff8967b92afe1def6c2a91f6838fb58b168428f9458c57a2ba06a6737711fdd87a256bbe83e9a217f
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@~5.8.3#~builtin<compat/typescript>":
-  version: 5.8.3
-  resolution: "typescript@patch:typescript@npm%3A5.8.3#~builtin<compat/typescript>::version=5.8.3&hash=5786d5"
+"typescript@patch:typescript@^5.9.3#~builtin<compat/typescript>":
+  version: 5.9.3
+  resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: f1743b6850976b3debf7cbd53d2bc0b67e75d47eb6410db564c8bb475e92a8a48f8a3fcd14d89cf93426835281c31a8f8a94dad90be4dc899279a898532ba97f
+  checksum: a5a6dc399d3761ded54192031f11d3ad5df8001c7febe3fbbc8098efcb552cdf8f2f402b3618c56dafcd04fef63dee005f4900f608e185404caedc46480539ed
   languageName: node
   linkType: hard
 
@@ -2082,9 +2071,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^7.1.2":
-  version: 7.1.11
-  resolution: "vite@npm:7.1.11"
+"vite@npm:^7.1.12":
+  version: 7.1.12
+  resolution: "vite@npm:7.1.12"
   dependencies:
     esbuild: ^0.25.0
     fdir: ^6.5.0
@@ -2133,7 +2122,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 67855b760fc55228ef91b22bc6bf90c0e3500ea5f52174533bc475f33885fb2d1548d9f0d0533e11f351b752ab3c467c2d07076550cf65e96ed1462534609764
+  checksum: 4be31af222b94aeaf627443b37e13239ca81bedcf29fb952580272098b966314a5136edf65fbd5b66bbcc84cc1c48403fcadb79d858da4bad455fc9a0da263b7
   languageName: node
   linkType: hard
 
@@ -2148,13 +2137,13 @@ __metadata:
     "@types/react": ^19.1.10
     "@types/react-dom": ^19.1.7
     "@vitejs/plugin-react-swc": ^4.0.0
-    "@webview-rpc/client": ^1.0.7
-    "@webview-rpc/react-query": ^1.0.8
-    react: ^19.1.1
-    react-dom: ^19.1.1
-    tailwindcss: ^4.1.15
-    typescript: ~5.8.3
-    vite: ^7.1.2
+    "@webview-rpc/client": ^1.0.15
+    "@webview-rpc/react-query": ^1.0.15
+    react: ^19.2.0
+    react-dom: ^19.2.0
+    tailwindcss: ^4.1.16
+    typescript: ^5.9.3
+    vite: ^7.1.12
   languageName: unknown
   linkType: soft
 

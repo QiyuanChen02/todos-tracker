@@ -381,22 +381,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@webview-rpc/host@npm:^1.0.7":
-  version: 1.0.8
-  resolution: "@webview-rpc/host@npm:1.0.8"
+"@webview-rpc/host@npm:^1.0.15":
+  version: 1.0.15
+  resolution: "@webview-rpc/host@npm:1.0.15"
   dependencies:
-    "@webview-rpc/shared": 1.0.8
+    "@webview-rpc/shared": 1.0.15
     zod: ^4.1.11
-  checksum: eebc4e77e159229d6dad919ce0d16e71708fc3a2afaa5eb39cf8ce75bf47338d9b05c405dbd84104a68e6958e467e7ccb8b7744387d2f3a69c87652d4c7b9ab7
+  checksum: 391fa83620f3f7d0823024146f7587cd099893f6c0e9c05dde79e35bd0c3bb1710f3ee34bf9e61d3448a11b07e294b591a3ab7c70c7b0739d5f5dde9dff252db
   languageName: node
   linkType: hard
 
-"@webview-rpc/shared@npm:1.0.8":
-  version: 1.0.8
-  resolution: "@webview-rpc/shared@npm:1.0.8"
+"@webview-rpc/shared@npm:1.0.15":
+  version: 1.0.15
+  resolution: "@webview-rpc/shared@npm:1.0.15"
   dependencies:
     zod: ^4.1.11
-  checksum: 10607dbf47e79218117814fd25d893391d40241685408bcb96e6a3991e6da532cd9c65e6c3ca17971a76dfd14fe50fdb4f638d57ba57f401e4e025340eb3b6a3
+  checksum: 59d37b84d481d3b64c05ea62947a07e3130c2a19e18a7efc75043c2f627ea4826b6dccecf94346cf943569453987bcc63c92737b3c569f5ce85560e369ababea
   languageName: node
   linkType: hard
 
@@ -435,10 +435,10 @@ __metadata:
     "@types/vscode": ^1.104.0
     "@vscode/test-cli": ^0.0.11
     "@vscode/test-electron": ^2.5.2
-    "@webview-rpc/host": ^1.0.7
-    eslint: ^9.34.0
-    typescript: ^5.9.2
-    zod: ^4.1.11
+    "@webview-rpc/host": ^1.0.15
+    eslint: ^9.38.0
+    typescript: ^5.9.3
+    zod: ^4.1.12
   languageName: unknown
   linkType: soft
 
@@ -871,7 +871,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^9.34.0":
+"eslint@npm:^9.38.0":
   version: 9.38.0
   resolution: "eslint@npm:9.38.0"
   dependencies:
@@ -2292,7 +2292,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.9.2":
+"typescript@npm:^5.9.3":
   version: 5.9.3
   resolution: "typescript@npm:5.9.3"
   bin:
@@ -2302,7 +2302,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^5.9.2#~builtin<compat/typescript>":
+"typescript@patch:typescript@^5.9.3#~builtin<compat/typescript>":
   version: 5.9.3
   resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:
@@ -2491,7 +2491,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^4.1.11":
+"zod@npm:^4.1.11, zod@npm:^4.1.12":
   version: 4.1.12
   resolution: "zod@npm:4.1.12"
   checksum: 91174acc7d2ca5572ad522643474ddd60640cf6877b5d76e5d583eb25e3c4072c6f5eb92ab94f231ec5ce61c6acdfc3e0166de45fb1005b1ea54986b026b765f

@@ -1,9 +1,10 @@
 import * as path from "node:path";
 import { attachRouterToPanel } from "@webview-rpc/host";
 import * as vscode from "vscode";
+import { createDatabase } from "../database/createDatabase.js";
+import { schemas } from "../database/schema.js";
 import { getWebviewContent } from "../helpers/getWebviewContent.js";
-import { updateNotificationEmitter } from "../helpers/updateNotification.js";
-import { appRouter } from "../router/router.js";
+import { appRouter, type Context } from "../router/router.js";
 
 let currentPanel: vscode.WebviewPanel | undefined;
 
@@ -12,6 +13,7 @@ let currentPanel: vscode.WebviewPanel | undefined;
  * Command id: todos-tracker.openTodos
  */
 export function registerOpenWebviewCommand(context: vscode.ExtensionContext) {
+	const db = createDatabase(context, schemas);
 	const disposable = vscode.commands.registerCommand(
 		"todos-tracker.openTodos",
 		async () => {
@@ -32,7 +34,7 @@ export function registerOpenWebviewCommand(context: vscode.ExtensionContext) {
 							path.join(context.extensionPath, "webview", "dist"),
 						),
 					],
-					portMapping: [{ webviewPort: 5173, extensionHostPort: 5173 }],
+					portMapping: [{ webviewPort: 5174, extensionHostPort: 5174 }],
 				},
 			);
 
@@ -40,17 +42,11 @@ export function registerOpenWebviewCommand(context: vscode.ExtensionContext) {
 				context,
 				currentPanel.webview,
 			);
-			attachRouterToPanel(appRouter, currentPanel, context);
 
-			// Subscribe to in-process todo updates and forward them to the webview.
-			// The event returns a Disposable which we add to context.subscriptions so it
-			// will be cleaned up automatically when the extension is deactivated.
-			const todosSub = updateNotificationEmitter.event((type) => {
-				if (currentPanel) {
-					currentPanel.webview.postMessage({ type });
-				}
+			attachRouterToPanel<Context>(appRouter, currentPanel, {
+				vsContext: context,
+				db,
 			});
-			context.subscriptions.push(todosSub);
 
 			currentPanel.onDidDispose(
 				() => {

@@ -1,30 +1,15 @@
 /** biome-ignore-all lint/correctness/useUniqueElementIds: Easier */
 
-import type { TodoItem } from "../../src/commands/scanTodos";
 import { BoardColumn } from "./components/BoardColumn";
-import { TodoCard } from "./components/TodoCard";
-import { useUpdates } from "./hooks/useUpdates";
 import { wrpc } from "./wrpc";
 
-interface TodoWithStatus extends TodoItem {
-	status: "todo" | "in-progress" | "done";
-}
-
 export default function App() {
-	// Mock data - replace with actual data from your extension
-	const { data, refetch } = wrpc.useQuery("fetchTodos", undefined);
+	const { data: todos } = wrpc.useQuery("fetchTodos");
 
-	// Update: Use data directly instead of storing in separate state
-	const todos: TodoWithStatus[] = data
-		? data.map((todo) => ({
-				...todo,
-				status: "todo" as const,
-			}))
-		: [];
+	if (!todos) {
+		return <div className="p-6">Loading...</div>;
+	}
 
-	useUpdates(refetch, "todosUpdated");
-
-	// Filter todos by status
 	const todoItems = todos.filter((todo) => todo.status === "todo");
 	const inProgressItems = todos.filter((todo) => todo.status === "in-progress");
 	const doneItems = todos.filter((todo) => todo.status === "done");
@@ -43,35 +28,23 @@ export default function App() {
 					<BoardColumn
 						id="todo"
 						title="To Do"
-						count={todoItems.length}
+						todos={todoItems}
 						statusColor="todo"
-					>
-						{todoItems.map((todo) => (
-							<TodoCard key={todo.id} {...todo} />
-						))}
-					</BoardColumn>
+					/>
 
 					<BoardColumn
 						id="in-progress"
 						title="In Progress"
-						count={inProgressItems.length}
+						todos={inProgressItems}
 						statusColor="in-progress"
-					>
-						{inProgressItems.map((todo) => (
-							<TodoCard key={todo.id} {...todo} />
-						))}
-					</BoardColumn>
+					/>
 
 					<BoardColumn
 						id="done"
 						title="Done"
-						count={doneItems.length}
+						todos={doneItems}
 						statusColor="done"
-					>
-						{doneItems.map((todo) => (
-							<TodoCard key={todo.id} {...todo} />
-						))}
-					</BoardColumn>
+					/>
 				</div>
 			</div>
 		</div>

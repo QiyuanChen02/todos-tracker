@@ -4,7 +4,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
-const DEV_PORT = 5173;
+const DEV_PORT = 5174;
 const DEV_ENTRY = "/src/main.tsx";
 
 interface DevUris {
