@@ -20,7 +20,7 @@ function createBaseCSP(webview: vscode.Webview): string[] {
 		`default-src 'none'`,
 		`img-src ${webview.cspSource} https: data:`,
 		`style-src ${webview.cspSource} 'unsafe-inline'`,
-		`font-src ${webview.cspSource}`,
+		`font-src ${webview.cspSource} https:`,
 		`frame-src ${webview.cspSource} https:`,
 		`child-src ${webview.cspSource} https:`,
 	];
@@ -74,7 +74,12 @@ async function getDevUris(): Promise<DevUris> {
 	return { refreshUri, clientUri, entryUri, origin, wsOrigin };
 }
 
-function createDevHTML(nonce: string, uris: DevUris, csp: string): string {
+function createDevHTML(
+	nonce: string,
+	uris: DevUris,
+	csp: string,
+	codiconCssUri: vscode.Uri,
+): string {
 	return `
     <!doctype html>
     <html>
@@ -83,6 +88,7 @@ function createDevHTML(nonce: string, uris: DevUris, csp: string): string {
         <meta http-equiv="Content-Security-Policy" content="${csp}">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Dev</title>
+		<link href="${codiconCssUri}" rel="stylesheet" />
         </head>
         <body>
         <div id="root"></div>
@@ -107,6 +113,7 @@ function processProductionHtml(
 	webview: vscode.Webview,
 	distPath: string,
 	nonce: string,
+	codiconCssUri: vscode.Uri,
 ): string {
 	const processedHtml = htmlContent.replace(
 		/(href|src)=["']([^"']*)["']/g,
@@ -131,12 +138,29 @@ function processProductionHtml(
 	return processedHtml
 		.replace(
 			"</head>",
-			`<meta http-equiv="Content-Security-Policy" content="${csp}"></head>`,
+			`<meta http-equiv="Content-Security-Policy" content="${csp}">
+            <link href="${codiconCssUri}" rel="stylesheet" /></head>`,
 		)
 		.replace(
 			/<script([^>]*)type="module"([^>]*)>/g,
 			`<script$1type="module"$2 nonce="${nonce}">`,
 		);
+}
+
+function getCodiconCssUri(
+	context: vscode.ExtensionContext,
+	webview: vscode.Webview,
+): vscode.Uri {
+	return webview.asWebviewUri(
+		vscode.Uri.joinPath(
+			context.extensionUri,
+			"node_modules",
+			"@vscode",
+			"codicons",
+			"dist",
+			"codicon.css",
+		),
+	);
 }
 
 export async function getWebviewContent(
@@ -145,11 +169,12 @@ export async function getWebviewContent(
 ): Promise<string> {
 	const isDev = context.extensionMode === vscode.ExtensionMode.Development;
 	const nonce = randomUUID();
+	const codiconCssUri = getCodiconCssUri(context, webview);
 
 	if (isDev) {
 		const uris = await getDevUris();
 		const csp = createDevCSP(webview, nonce, uris.origin, uris.wsOrigin);
-		return createDevHTML(nonce, uris, csp);
+		return createDevHTML(nonce, uris, csp, codiconCssUri);
 	}
 
 	const htmlPath = path.join(
@@ -161,5 +186,11 @@ export async function getWebviewContent(
 	const distPath = path.join(context.extensionPath, "webview", "dist");
 	const htmlContent = fs.readFileSync(htmlPath, "utf8");
 
-	return processProductionHtml(htmlContent, webview, distPath, nonce);
+	return processProductionHtml(
+		htmlContent,
+		webview,
+		distPath,
+		nonce,
+		codiconCssUri,
+	);
 }

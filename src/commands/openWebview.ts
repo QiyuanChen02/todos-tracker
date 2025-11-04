@@ -33,6 +33,15 @@ export function registerOpenWebviewCommand(context: vscode.ExtensionContext) {
 						vscode.Uri.file(
 							path.join(context.extensionPath, "webview", "dist"),
 						),
+						vscode.Uri.file(
+							path.join(
+								context.extensionPath,
+								"node_modules",
+								"@vscode",
+								"codicons",
+								"dist",
+							),
+						),
 					],
 					portMapping: [{ webviewPort: 5174, extensionHostPort: 5174 }],
 				},

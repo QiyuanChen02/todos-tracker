@@ -8,9 +8,17 @@ export const todoSchema = z.object({
 	comments: z.string().optional(),
 });
 
+export const columnsSchema = z.object({
+	id: z.uuid(),
+	todo: todoSchema.array(),
+	"in-progress": todoSchema.array(),
+	done: todoSchema.array(),
+});
+
 // Define all your schemas here
 export const schemas = {
 	todos: todoSchema,
+	columns: columnsSchema,
 	// Add more schemas here as needed
 	// users: userSchema,
 	// projects: projectSchema,

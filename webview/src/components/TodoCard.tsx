@@ -1,36 +1,97 @@
+import { useSortable } from "@dnd-kit/react/sortable";
+import { useState } from "react";
 import type { SchemaTypes } from "../../../src/database/schema";
+import { wrpc } from "../wrpc";
+import { IconButton } from "./IconButton";
+import { TodoInput } from "./TodoInput";
 
-const priorityColors = {
-	low: "text-blue-500 bg-blue-500/10 border-blue-500/20",
-	medium: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
-	high: "text-red-500 bg-red-500/10 border-red-500/20",
-};
+export function TodoCard({
+	index,
+	columnId,
+	todo,
+}: {
+	index: number;
+	columnId: string;
+	todo: SchemaTypes["todos"];
+}) {
+	const { ref, isDragging } = useSortable({
+		id: todo.id,
+		index,
+		group: columnId,
+	});
 
-const priorityLabels = {
-	low: "Low",
-	medium: "Medium",
-	high: "High",
-};
+	const { title } = todo;
 
-export function TodoCard({ title, priority, comments }: SchemaTypes["todos"]) {
+	const utils = wrpc.useUtils();
+	const editTodo = wrpc.useMutation("editTodo", {
+		onSuccess: () => utils.invalidate("fetchTodos"),
+	});
+	const deleteTodo = wrpc.useMutation("deleteTodo", {
+		onSuccess: () => utils.invalidate("fetchTodos"),
+	});
+
+	const [isEditing, setIsEditing] = useState(false);
+
+	const handleEdit = () => setIsEditing(true);
+
+	const handleEditSave = (newTitle: string) => {
+		const trimmed = newTitle.trim();
+		if (trimmed.length > 1) {
+			editTodo.mutate({ ...todo, title: trimmed });
+			setIsEditing(false);
+		}
+	};
+
+	const handleEditCancel = () => {
+		setIsEditing(false);
+	};
+
+	const handleDelete = () => {
+		deleteTodo.mutate(todo.id);
+	};
+
 	return (
-		<div className="p-4 rounded-lg border border-divider bg-card shadow-sm hover:shadow-md hover:border-primary cursor-grab active:cursor-grabbing group">
-			<div className="space-y-3">
-				<div className="flex items-start justify-between gap-2">
-					<h3 className="text-sm font-semibold text-text flex-1 break-words">
-						{title}
-					</h3>
-					<span
-						className={`px-2 py-0.5 rounded text-xs font-medium border ${priorityColors[priority]}`}
-					>
-						{priorityLabels[priority]}
-					</span>
+		<>
+			{!isEditing && (
+				<div
+					ref={ref}
+					className={`relative group p-4 rounded border bg-card cursor-grab transition
+                ${isDragging ? "opacity-60 scale-95 border-primary ring-2 ring-primary/30" : ""}
+            `}
+				>
+					<div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 pointer-events-auto transition-opacity z-10">
+						<IconButton
+							iconName="codicon-edit"
+							onClick={handleEdit}
+							title="Edit todo"
+							className="text-muted-text hover:text-text"
+						/>
+						<IconButton
+							iconName="codicon-trash"
+							onClick={handleDelete}
+							title="Delete todo"
+							className="text-muted-text hover:text-text"
+						/>
+					</div>
+					<div className="space-y-3">
+						<div className="flex items-start justify-between gap-2">
+							<h3 className="text-sm font-semibold text-text flex-1 wrap-break-word">
+								{title}
+							</h3>
+						</div>
+					</div>
 				</div>
+			)}
 
-				{comments && (
-					<p className="text-xs text-muted-text line-clamp-2">{comments}</p>
-				)}
-			</div>
-		</div>
+			{isEditing && (
+				<TodoInput
+					initialValue={title}
+					placeholder="Edit task..."
+					submitting={editTodo.isPending}
+					onSubmit={handleEditSave}
+					onCancel={handleEditCancel}
+				/>
+			)}
+		</>
 	);
 }

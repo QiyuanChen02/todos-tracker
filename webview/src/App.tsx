@@ -1,18 +1,77 @@
-/** biome-ignore-all lint/correctness/useUniqueElementIds: Easier */
-
+import { move } from "@dnd-kit/helpers";
+import { type DragDropEvents, DragDropProvider } from "@dnd-kit/react";
+import type { OutputAtPath } from "@webview-rpc/shared";
+import { useEffect, useRef, useState } from "react";
+import type { AppRouter } from "../../src/router/router";
 import { BoardColumn } from "./components/BoardColumn";
 import { wrpc } from "./wrpc";
 
+type ColumnId = "todo" | "in-progress" | "done";
+
+const COLUMN_IDS: ColumnId[] = ["todo", "in-progress", "done"];
+
+// Helper: find which column currently contains a todo id
+type Todos = NonNullable<OutputAtPath<AppRouter, "fetchTodos">>;
+function findColumnByTodoId(
+	columns: Record<ColumnId, Todos>,
+	id: string,
+): ColumnId | null {
+	return (
+		COLUMN_IDS.find((col) => columns[col].some((t) => String(t.id) === id)) ??
+		null
+	);
+}
+
+function getColumnsFromData(
+	data: OutputAtPath<AppRouter, "fetchTodos"> | undefined,
+): Record<ColumnId, NonNullable<typeof data>> {
+	return {
+		todo: data?.filter((todo) => todo.status === "todo") ?? [],
+		"in-progress": data?.filter((todo) => todo.status === "in-progress") ?? [],
+		done: data?.filter((todo) => todo.status === "done") ?? [],
+	};
+}
+
 export default function App() {
-	const { data: todos } = wrpc.useQuery("fetchTodos");
+	const { data } = wrpc.useQuery("fetchTodos");
 
-	if (!todos) {
-		return <div className="p-6">Loading...</div>;
-	}
+	const changeTodoStatus = wrpc.useMutation("changeTodoStatus", {
+		onSuccess: (data) => console.log("Updated todo:", data),
+	});
 
-	const todoItems = todos.filter((todo) => todo.status === "todo");
-	const inProgressItems = todos.filter((todo) => todo.status === "in-progress");
-	const doneItems = todos.filter((todo) => todo.status === "done");
+	const [todoColumns, setTodoColumns] = useState(() =>
+		getColumnsFromData(data),
+	);
+
+	// Keep track of the column where the drag started
+	const dragFromRef = useRef<ColumnId | null>(null);
+
+	useEffect(() => {
+		setTodoColumns(getColumnsFromData(data));
+	}, [data]);
+
+	const handleDragStart = (e: Parameters<DragDropEvents["dragstart"]>[0]) => {
+		const id = String(e?.operation?.source?.id);
+		dragFromRef.current = findColumnByTodoId(todoColumns, id);
+	};
+
+	const handleDragOver = (e: Parameters<DragDropEvents["dragover"]>[0]) => {
+		setTodoColumns((prev) => move(prev, e));
+	};
+
+	const handleDragEnd = (e: Parameters<DragDropEvents["dragend"]>[0]) => {
+		const todoId = String(e?.operation?.source?.id);
+		const from = dragFromRef.current;
+		setTodoColumns((prev) => move(prev, e));
+		const nextColumns = move(todoColumns, e);
+		const to = findColumnByTodoId(nextColumns, todoId);
+		if (from && to && from !== to) {
+			changeTodoStatus.mutate({
+				id: todoId,
+				newStatus: to,
+			});
+		}
+	};
 
 	return (
 		<div className="h-screen bg-background p-6">
@@ -24,28 +83,21 @@ export default function App() {
 					</p>
 				</header>
 
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
-					<BoardColumn
-						id="todo"
-						title="To Do"
-						todos={todoItems}
-						statusColor="todo"
-					/>
-
-					<BoardColumn
-						id="in-progress"
-						title="In Progress"
-						todos={inProgressItems}
-						statusColor="in-progress"
-					/>
-
-					<BoardColumn
-						id="done"
-						title="Done"
-						todos={doneItems}
-						statusColor="done"
-					/>
-				</div>
+				<DragDropProvider
+					onDragStart={handleDragStart}
+					onDragOver={handleDragOver}
+					onDragEnd={handleDragEnd}
+				>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+						{COLUMN_IDS.map((columnId) => (
+							<BoardColumn
+								key={columnId}
+								columnId={columnId}
+								todos={todoColumns[columnId]}
+							/>
+						))}
+					</div>
+				</DragDropProvider>
 			</div>
 		</div>
 	);

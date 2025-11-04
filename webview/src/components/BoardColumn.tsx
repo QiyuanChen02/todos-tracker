@@ -1,68 +1,63 @@
+import { useDroppable } from "@dnd-kit/react";
 import type { OutputAtPath } from "@webview-rpc/shared";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { AppRouter } from "../../../src/router/router";
 import { wrpc } from "../wrpc";
 import { TodoCard } from "./TodoCard";
+import { TodoInput } from "./TodoInput";
 
 interface BoardColumnProps {
-	id: string;
-	title: string;
+	columnId: "todo" | "in-progress" | "done";
 	todos: OutputAtPath<AppRouter, "fetchTodos">;
-	statusColor?: "todo" | "in-progress" | "done";
 }
 
-export function BoardColumn({
-	title,
-	todos,
-	statusColor = "todo",
-}: BoardColumnProps) {
-	const colorClasses = {
-		todo: "border-l-4 border-l-warning",
+function getColumnTitle(columnId: "todo" | "in-progress" | "done") {
+	const titles = {
+		todo: "To Do",
+		"in-progress": "In Progress",
+		done: "Done",
+	};
+	return titles[columnId];
+}
+
+function getColourClass(columnId: "todo" | "in-progress" | "done") {
+	const classes = {
+		todo: "border-l-4 border-l-danger",
 		"in-progress": "border-l-4 border-l-primary",
 		done: "border-l-4 border-l-success",
 	};
+	return classes[columnId];
+}
+
+export function BoardColumn({ columnId, todos }: BoardColumnProps) {
+	const { ref } = useDroppable({
+		id: columnId,
+	});
 
 	// Local draft state for new task
 	const [isCreating, setIsCreating] = useState(false);
-	const [draftTitle, setDraftTitle] = useState("");
-	const inputRef = useRef<HTMLInputElement>(null);
-
-	useEffect(() => {
-		if (isCreating) {
-			// ensure focus after render
-			setTimeout(() => inputRef.current?.focus(), 0);
-		}
-	}, [isCreating]);
 
 	const qc = wrpc.useUtils();
 	const storeTodo = wrpc.useMutation("storeTodo", {
 		onSuccess: () => {
 			setIsCreating(false);
-			setDraftTitle("");
 			// Refresh todos list
 			qc.invalidate("fetchTodos");
 		},
+		onError: (error) => console.error("Error creating todo:", error),
 	});
 
-	const startCreating = () => {
-		setIsCreating(true);
-		setDraftTitle("");
-	};
+	const startCreating = () => setIsCreating(true);
+	const cancelDraft = () => setIsCreating(false);
 
-	const cancelDraft = () => {
-		setIsCreating(false);
-		setDraftTitle("");
-	};
-
-	const saveDraft = () => {
-		const title = draftTitle.trim();
-		// Enforce schema min length (2). If too short, just cancel silently.
-		if (title.length < 2) return cancelDraft();
+	const saveDraft = (title: string) => {
+		const t = title.trim();
+		if (t.length < 2) return cancelDraft();
 
 		storeTodo.mutate({
 			id: crypto.randomUUID(),
-			title,
-			status: statusColor,
+			title: t,
+			status: columnId,
 			priority: "medium",
 		});
 	};
@@ -70,10 +65,12 @@ export function BoardColumn({
 	return (
 		<div className="flex flex-col h-full">
 			<div
-				className={`rounded-t-lg border border-divider bg-column-header p-4 ${colorClasses[statusColor]}`}
+				className={`rounded-t-lg border border-divider bg-column-header p-4 ${getColourClass(columnId)}`}
 			>
 				<div className="flex items-center justify-between">
-					<h2 className="text-base font-semibold text-text">{title}</h2>
+					<h2 className="text-base font-semibold text-text">
+						{getColumnTitle(columnId)}
+					</h2>
 					<span className="px-2.5 py-0.5 rounded-full bg-surface text-xs font-medium text-muted-text">
 						{todos.length}
 					</span>
@@ -81,29 +78,25 @@ export function BoardColumn({
 			</div>
 
 			<div
-				className={`flex-1 rounded-b-lg border-l border-r border-b border-divider bg-column-bg p-4 space-y-3 overflow-y-auto min-h-[400px] transition-colors`}
+				ref={ref}
+				className={`flex-1 rounded-b-lg border-l border-r border-b border-divider bg-column-bg p-4 space-y-3 overflow-y-auto min-h[400px] transition-colors`}
 			>
-				{todos.map((todo) => (
-					<TodoCard key={todo.id} {...todo} />
+				{todos.map((todo, index) => (
+					<TodoCard
+						key={todo.id}
+						index={index}
+						columnId={columnId}
+						todo={todo}
+					/>
 				))}
 
 				{isCreating && (
-					<div className="p-4 rounded-lg border border-divider bg-card shadow-sm hover:shadow-md hover:border-primary focus-within:border-primary">
-						<input
-							ref={inputRef}
-							type="text"
-							className="w-full bg-transparent outline-none text-sm text-text"
-							placeholder="Task title..."
-							value={draftTitle}
-							onChange={(e) => setDraftTitle(e.target.value)}
-							onBlur={saveDraft}
-							onKeyDown={(e) => {
-								if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-								if (e.key === "Escape") cancelDraft();
-							}}
-							disabled={storeTodo.isPending}
-						/>
-					</div>
+					<TodoInput
+						placeholder="Task title..."
+						submitting={storeTodo.isPending}
+						onSubmit={saveDraft}
+						onCancel={cancelDraft}
+					/>
 				)}
 
 				{!isCreating && (

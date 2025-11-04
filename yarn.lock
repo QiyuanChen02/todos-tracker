@@ -349,6 +349,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vscode/codicons@npm:^0.0.41":
+  version: 0.0.41
+  resolution: "@vscode/codicons@npm:0.0.41"
+  checksum: 66deee44247352ac9d64506d5c7c164daadcbd86fb659b32ff1a6b04762acf01867f1392b8f0f4383c684890c850a473cd29e8b197081b4a2d802c0cf05d18ad
+  languageName: node
+  linkType: hard
+
 "@vscode/test-cli@npm:^0.0.11":
   version: 0.0.11
   resolution: "@vscode/test-cli@npm:0.0.11"
@@ -433,6 +440,7 @@ __metadata:
     "@types/mocha": ^10.0.10
     "@types/node": 22.x
     "@types/vscode": ^1.104.0
+    "@vscode/codicons": ^0.0.41
     "@vscode/test-cli": ^0.0.11
     "@vscode/test-electron": ^2.5.2
     "@webview-rpc/host": ^1.0.15

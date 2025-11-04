@@ -43,6 +43,7 @@
 	},
 	"packageManager": "yarn@3.8.7",
 	"dependencies": {
+		"@vscode/codicons": "^0.0.41",
 		"@webview-rpc/host": "^1.0.15",
 		"zod": "^4.1.12"
 	}
