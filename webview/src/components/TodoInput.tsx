@@ -16,16 +16,15 @@ export function TodoInput({
 	onCancel,
 }: TodoInputProps) {
 	const [value, setValue] = useState(initialValue);
-	const inputRef = useRef<HTMLInputElement>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 	useEffect(() => {
-		const id = setTimeout(() => inputRef.current?.focus(), 0);
+		const id = setTimeout(() => textareaRef.current?.focus(), 0);
 		return () => clearTimeout(id);
 	}, []);
 
 	const doSubmit = () => {
-		const v = value.trim();
-		onSubmit(v);
+		onSubmit(value);
 	};
 
 	const doCancel = () => {
@@ -33,27 +32,28 @@ export function TodoInput({
 		onCancel();
 	};
 
-	const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-		if (e.key === "Enter") doSubmit();
+	const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (
+		e,
+	) => {
+		if (e.key === "Enter" && !e.shiftKey) {
+			e.preventDefault();
+			doSubmit();
+		}
 		if (e.key === "Escape") doCancel();
-	};
-
-	const handleBlur: React.FocusEventHandler<HTMLInputElement> = () => {
-		doSubmit();
 	};
 
 	return (
 		<div className="p-4 rounded-lg border border-divider bg-card shadow-sm hover:shadow-md hover:border-primary focus-within:border-primary">
-			<input
-				ref={inputRef}
-				type="text"
-				className="w-full bg-transparent outline-none text-sm text-text"
+			<textarea
+				ref={textareaRef}
+				className="w-full bg-transparent outline-none text-sm text-text resize-none"
 				placeholder={placeholder}
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
-				onBlur={handleBlur}
+				onBlur={() => onSubmit(value)}
 				onKeyDown={handleKeyDown}
 				disabled={submitting}
+				rows={1}
 			/>
 		</div>
 	);

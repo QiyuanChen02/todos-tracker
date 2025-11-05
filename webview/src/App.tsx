@@ -1,81 +1,32 @@
-import { move } from "@dnd-kit/helpers";
-import { type DragDropEvents, DragDropProvider } from "@dnd-kit/react";
-import type { OutputAtPath } from "@webview-rpc/shared";
-import { useEffect, useRef, useState } from "react";
-import type { AppRouter } from "../../src/router/router";
-import { BoardColumn } from "./components/BoardColumn";
+import { useEffect, useState } from "react";
+import type { SchemaTypes } from "../../src/database/schema";
+import { Drawer } from "./components/Drawer";
+import { BoardColumn } from "./layout/BoardColumn";
+import { DragDrop } from "./layout/DragDrop";
+import { TodoDetails } from "./layout/TodoDetails";
 import { wrpc } from "./wrpc";
 
 type ColumnId = "todo" | "in-progress" | "done";
 
-const COLUMN_IDS: ColumnId[] = ["todo", "in-progress", "done"];
-
-// Helper: find which column currently contains a todo id
-type Todos = NonNullable<OutputAtPath<AppRouter, "fetchTodos">>;
-function findColumnByTodoId(
-	columns: Record<ColumnId, Todos>,
-	id: string,
-): ColumnId | null {
-	return (
-		COLUMN_IDS.find((col) => columns[col].some((t) => String(t.id) === id)) ??
-		null
-	);
-}
-
-function getColumnsFromData(
-	data: OutputAtPath<AppRouter, "fetchTodos"> | undefined,
-): Record<ColumnId, NonNullable<typeof data>> {
-	return {
-		todo: data?.filter((todo) => todo.status === "todo") ?? [],
-		"in-progress": data?.filter((todo) => todo.status === "in-progress") ?? [],
-		done: data?.filter((todo) => todo.status === "done") ?? [],
-	};
-}
-
 export default function App() {
 	const { data } = wrpc.useQuery("fetchTodos");
+	const columnIds: ColumnId[] = ["todo", "in-progress", "done"];
+	const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
 
-	const changeTodoStatus = wrpc.useMutation("changeTodoStatus", {
-		onSuccess: (data) => console.log("Updated todo:", data),
-	});
+	const handleCloseDrawer = () => {
+		setDrawerOpen(false);
+		setTimeout(() => setSelectedTodoId(null), 500);
+	};
 
-	const [todoColumns, setTodoColumns] = useState(() =>
-		getColumnsFromData(data),
-	);
-
-	// Keep track of the column where the drag started
-	const dragFromRef = useRef<ColumnId | null>(null);
+	const [drawerOpen, setDrawerOpen] = useState(false);
 
 	useEffect(() => {
-		setTodoColumns(getColumnsFromData(data));
-	}, [data]);
-
-	const handleDragStart = (e: Parameters<DragDropEvents["dragstart"]>[0]) => {
-		const id = String(e?.operation?.source?.id);
-		dragFromRef.current = findColumnByTodoId(todoColumns, id);
-	};
-
-	const handleDragOver = (e: Parameters<DragDropEvents["dragover"]>[0]) => {
-		setTodoColumns((prev) => move(prev, e));
-	};
-
-	const handleDragEnd = (e: Parameters<DragDropEvents["dragend"]>[0]) => {
-		const todoId = String(e?.operation?.source?.id);
-		const from = dragFromRef.current;
-		setTodoColumns((prev) => move(prev, e));
-		const nextColumns = move(todoColumns, e);
-		const to = findColumnByTodoId(nextColumns, todoId);
-		if (from && to && from !== to) {
-			changeTodoStatus.mutate({
-				id: todoId,
-				newStatus: to,
-			});
-		}
-	};
+		setDrawerOpen(!!selectedTodoId);
+	}, [selectedTodoId]);
 
 	return (
-		<div className="h-screen bg-background p-6">
-			<div className="h-full max-w-7xl mx-auto">
+		<div className="h-screen bg-background p-8">
+			<div className="h-full max-w-7xl mx-auto flex flex-col">
 				<header className="mb-6">
 					<h1 className="text-2xl font-bold text-text mb-2">TODOs Tracker</h1>
 					<p className="text-muted-text">
@@ -83,22 +34,28 @@ export default function App() {
 					</p>
 				</header>
 
-				<DragDropProvider
-					onDragStart={handleDragStart}
-					onDragOver={handleDragOver}
-					onDragEnd={handleDragEnd}
-				>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
-						{COLUMN_IDS.map((columnId) => (
-							<BoardColumn
-								key={columnId}
-								columnId={columnId}
-								todos={todoColumns[columnId]}
-							/>
-						))}
-					</div>
-				</DragDropProvider>
+				<DragDrop data={data}>
+					{(todoColumns) => (
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+							{columnIds.map((columnId) => (
+								<BoardColumn
+									key={columnId}
+									columnId={columnId}
+									todos={todoColumns[columnId]}
+									onOpenDetails={(t) => setSelectedTodoId(t.id)}
+								/>
+							))}
+						</div>
+					)}
+				</DragDrop>
 			</div>
+			<Drawer
+				open={drawerOpen}
+				onClose={handleCloseDrawer}
+				title="Todo details"
+			>
+				{selectedTodoId && <TodoDetails todoId={selectedTodoId} />}
+			</Drawer>
 		</div>
 	);
 }

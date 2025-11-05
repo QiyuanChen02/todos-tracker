@@ -4,8 +4,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 
-const DEV_PORT = 5174;
-const DEV_ENTRY = "/src/main.tsx";
+const PORT = 5174;
 
 interface DevUris {
 	refreshUri: vscode.Uri;
@@ -36,7 +35,7 @@ function createDevCSP(
 		[
 			...createBaseCSP(webview),
 			`script-src 'nonce-${nonce}' 'unsafe-eval' ${origin}`,
-			`connect-src ${origin} ${wsOrigin} ws://localhost:${DEV_PORT} ws://127.0.0.1:${DEV_PORT}`,
+			`connect-src ${origin} ${wsOrigin} ws://localhost:${PORT} ws://127.0.0.1:${PORT}`,
 		].join("; ") + ";"
 	);
 }
@@ -53,14 +52,10 @@ function createProdCSP(webview: vscode.Webview, nonce: string): string {
 
 async function getDevUris(): Promise<DevUris> {
 	const refreshLocal = vscode.Uri.parse(
-		`http://localhost:${DEV_PORT}/@react-refresh`,
+		`http://localhost:${PORT}/@react-refresh`,
 	);
-	const clientLocal = vscode.Uri.parse(
-		`http://localhost:${DEV_PORT}/@vite/client`,
-	);
-	const entryLocal = vscode.Uri.parse(
-		`http://localhost:${DEV_PORT}${DEV_ENTRY}`,
-	);
+	const clientLocal = vscode.Uri.parse(`http://localhost:${PORT}/@vite/client`);
+	const entryLocal = vscode.Uri.parse(`http://localhost:${PORT}/src/main.tsx`);
 
 	const [refreshUri, clientUri, entryUri] = await Promise.all([
 		vscode.env.asExternalUri(refreshLocal),

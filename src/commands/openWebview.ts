@@ -43,7 +43,6 @@ export function registerOpenWebviewCommand(context: vscode.ExtensionContext) {
 							),
 						),
 					],
-					portMapping: [{ webviewPort: 5174, extensionHostPort: 5174 }],
 				},
 			);
 

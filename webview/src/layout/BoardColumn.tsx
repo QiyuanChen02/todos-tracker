@@ -1,17 +1,22 @@
 import { useDroppable } from "@dnd-kit/react";
 import type { OutputAtPath } from "@webview-rpc/shared";
 import { useState } from "react";
+import type { SchemaTypes } from "../../../src/database/schema";
 import type { AppRouter } from "../../../src/router/router";
+import { TodoInput } from "../components/TodoInput";
+import { cn } from "../utils/cn";
 import { wrpc } from "../wrpc";
 import { TodoCard } from "./TodoCard";
-import { TodoInput } from "./TodoInput";
+
+type ColumnId = "todo" | "in-progress" | "done";
 
 interface BoardColumnProps {
-	columnId: "todo" | "in-progress" | "done";
+	columnId: ColumnId;
 	todos: OutputAtPath<AppRouter, "fetchTodos">;
+	onOpenDetails?: (todo: SchemaTypes["todos"]) => void;
 }
 
-function getColumnTitle(columnId: "todo" | "in-progress" | "done") {
+function getColumnTitle(columnId: ColumnId) {
 	const titles = {
 		todo: "To Do",
 		"in-progress": "In Progress",
@@ -20,7 +25,7 @@ function getColumnTitle(columnId: "todo" | "in-progress" | "done") {
 	return titles[columnId];
 }
 
-function getColourClass(columnId: "todo" | "in-progress" | "done") {
+function getColourClass(columnId: ColumnId) {
 	const classes = {
 		todo: "border-l-4 border-l-danger",
 		"in-progress": "border-l-4 border-l-primary",
@@ -29,7 +34,11 @@ function getColourClass(columnId: "todo" | "in-progress" | "done") {
 	return classes[columnId];
 }
 
-export function BoardColumn({ columnId, todos }: BoardColumnProps) {
+export function BoardColumn({
+	columnId,
+	todos,
+	onOpenDetails,
+}: BoardColumnProps) {
 	const { ref } = useDroppable({
 		id: columnId,
 	});
@@ -47,16 +56,10 @@ export function BoardColumn({ columnId, todos }: BoardColumnProps) {
 		onError: (error) => console.error("Error creating todo:", error),
 	});
 
-	const startCreating = () => setIsCreating(true);
-	const cancelDraft = () => setIsCreating(false);
-
 	const saveDraft = (title: string) => {
-		const t = title.trim();
-		if (t.length < 2) return cancelDraft();
-
 		storeTodo.mutate({
 			id: crypto.randomUUID(),
-			title: t,
+			title: title,
 			status: columnId,
 			priority: "medium",
 		});
@@ -65,7 +68,10 @@ export function BoardColumn({ columnId, todos }: BoardColumnProps) {
 	return (
 		<div className="flex flex-col h-full">
 			<div
-				className={`rounded-t-lg border border-divider bg-column-header p-4 ${getColourClass(columnId)}`}
+				className={cn(
+					"rounded-t-lg border border-divider bg-column-header p-4",
+					getColourClass(columnId),
+				)}
 			>
 				<div className="flex items-center justify-between">
 					<h2 className="text-base font-semibold text-text">
@@ -79,7 +85,7 @@ export function BoardColumn({ columnId, todos }: BoardColumnProps) {
 
 			<div
 				ref={ref}
-				className={`flex-1 rounded-b-lg border-l border-r border-b border-divider bg-column-bg p-4 space-y-3 overflow-y-auto min-h[400px] transition-colors`}
+				className="flex-1 rounded-b-lg border-l border-r border-b border-divider bg-column-bg p-4 overflow-y-auto min-h-[400px] transition-colors flex flex-col gap-3"
 			>
 				{todos.map((todo, index) => (
 					<TodoCard
@@ -87,6 +93,7 @@ export function BoardColumn({ columnId, todos }: BoardColumnProps) {
 						index={index}
 						columnId={columnId}
 						todo={todo}
+						onOpenDetails={onOpenDetails}
 					/>
 				))}
 
@@ -95,14 +102,14 @@ export function BoardColumn({ columnId, todos }: BoardColumnProps) {
 						placeholder="Task title..."
 						submitting={storeTodo.isPending}
 						onSubmit={saveDraft}
-						onCancel={cancelDraft}
+						onCancel={() => setIsCreating(false)}
 					/>
 				)}
 
 				{!isCreating && (
 					<button
 						type="button"
-						onClick={startCreating}
+						onClick={() => setIsCreating(true)}
 						disabled={isCreating || storeTodo.isPending}
 						className="w-full p-4 rounded-lg border border-divider bg-card text-sm text-muted-text shadow-sm hover:shadow-md hover:border-primary disabled:opacity-60 flex items-center justify-center"
 						aria-label="Add new task"

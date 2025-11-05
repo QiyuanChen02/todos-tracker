@@ -1,6 +1,9 @@
+import type { MouseEventHandler } from "react";
+import { cn } from "../utils/cn";
+
 interface IconButtonProps {
 	iconName: string;
-	onClick: () => void;
+	onClick?: MouseEventHandler<HTMLButtonElement>;
 	title?: string;
 	className?: string;
 }
@@ -16,10 +19,12 @@ export function IconButton({
 			type="button"
 			onClick={onClick}
 			title={title}
-			className={`flex items-center justify-center p-1 rounded hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40 ${className}`}
-			style={{ height: "2rem", width: "2rem" }} // Ensures a square button and vertical centering
+			className={cn(
+				"flex items-center w-6 h-6 justify-center focus:outline-none",
+				className,
+			)}
 		>
-			<i className={`codicon ${iconName}`} />
+			<i className={cn("codicon", iconName)} />
 		</button>
 	);
 }

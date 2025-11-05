@@ -50,6 +50,23 @@ export const appRouter = router({
 			await ctx.db.todos.updateById(input.id, updatedTodo);
 			return todo;
 		}),
+
+	changeTodoPriority: procedure
+		.input(
+			z.object({
+				id: z.string(),
+				newPriority: z.enum(["low", "medium", "high"]),
+			}),
+		)
+		.resolve(async ({ input, ctx }) => {
+			const todo = await ctx.db.todos.findById(input.id);
+			if (!todo) {
+				throw new Error("Todo not found");
+			}
+			const updatedTodo = { ...todo, priority: input.newPriority };
+			await ctx.db.todos.updateById(input.id, updatedTodo);
+			return todo;
+		}),
 });
 
 export type AppRouter = typeof appRouter;
