@@ -1,7 +1,7 @@
 {
-	"name": "activity-tracker",
-	"displayName": "activity-tracker",
-	"description": "Tracks your VSCode activity",
+	"name": "todo-kanban",
+	"displayName": "Todo Kanban",
+	"description": "Tracks your VSCode todo items and displays them in a kanban board",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.104.0"
@@ -14,22 +14,26 @@
 		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
+	"icon": "logo.png",
+	"publisher": "qiyuanchen",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/QiyuanChen02/todos-tracker.git"
+	},
 	"contributes": {
 		"commands": [
 			{
 				"command": "todos-tracker.openTodos",
-				"title": "Open Stats"
+				"title": "Open Todos"
 			}
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "yarn run compile",
+		"vscode:prepublish": "yarn run compile && yarn run build-webview",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile && yarn run lint",
-		"lint": "eslint src",
-		"test": "vscode-test",
-		"upgrade-wrpc": "yarn up @webview-rpc/host && cd webview && yarn up @webview-rpc/client @webview-rpc/react-query && cd .."
+		"upgrade-wrpc": "yarn up @webview-rpc/host && cd webview && yarn up @webview-rpc/client @webview-rpc/react-query && cd ..",
+		"build-webview": "cd webview && yarn build && cd .."
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.6",
@@ -41,10 +45,10 @@
 		"eslint": "^9.38.0",
 		"typescript": "^5.9.3"
 	},
-	"packageManager": "yarn@3.8.7",
+	"packageManager": "yarn@1.22.22",
 	"dependencies": {
 		"@vscode/codicons": "^0.0.41",
-		"@webview-rpc/host": "^1.0.16",
+		"@webview-rpc/host": "^1.0.17",
 		"zod": "^4.1.12"
 	}
 }

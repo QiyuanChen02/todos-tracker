@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { SchemaTypes } from "../../../src/database/schema";
 import { IconButton } from "../components/IconButton";
 import { TodoInput } from "../components/TodoInput";
+import { useChangeTodoTitle } from "../utils/changeTodoDetails";
 import { cn } from "../utils/cn";
 import { wrpc } from "../wrpc";
 
@@ -28,9 +29,9 @@ export function TodoCard({
 	const { title } = todo;
 
 	const utils = wrpc.useUtils();
-	const editTodo = wrpc.useMutation("editTodo", {
-		onSuccess: () => utils.invalidate("fetchTodos"),
-	});
+
+	const { handleTitleChange } = useChangeTodoTitle();
+
 	const deleteTodo = wrpc.useMutation("deleteTodo", {
 		onSuccess: () => utils.invalidate("fetchTodos"),
 	});
@@ -40,7 +41,7 @@ export function TodoCard({
 	const handleEdit = () => setIsEditing(true);
 
 	const handleEditSave = (newTitle: string) => {
-		editTodo.mutate({ ...todo, title: newTitle });
+		handleTitleChange(todo.id, newTitle);
 		setIsEditing(false);
 	};
 
@@ -112,7 +113,6 @@ export function TodoCard({
 				<TodoInput
 					initialValue={title}
 					placeholder="Edit task..."
-					submitting={editTodo.isPending}
 					onSubmit={handleEditSave}
 					onCancel={handleEditCancel}
 				/>

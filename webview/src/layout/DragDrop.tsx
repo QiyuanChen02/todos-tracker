@@ -36,7 +36,7 @@ interface DragDropProps {
 }
 
 export function DragDrop({ data, children }: DragDropProps) {
-	const changeTodoStatus = wrpc.useMutation("changeTodoStatus", {
+	const changeStatusMutation = wrpc.useMutation("changeTodoStatus", {
 		onSuccess: (data) => console.log("Updated todo:", data),
 	});
 
@@ -67,7 +67,7 @@ export function DragDrop({ data, children }: DragDropProps) {
 		const nextColumns = move(todoColumns, e);
 		const to = findColumnByTodoId(nextColumns, todoId);
 		if (from && to && from !== to) {
-			changeTodoStatus.mutate({
+			changeStatusMutation.mutate({
 				id: todoId,
 				newStatus: to,
 			});

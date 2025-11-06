@@ -40,20 +40,34 @@ export class WorkspaceStateManager<
 	}
 
 	/**
-	 * Create a new item (generates id if not provided)
+	 * Create a new item (generates id if not provided, and createdAt if schema has it)
 	 */
 	async create(
-		item: Omit<z.infer<TSchema>, "id"> & { id?: string },
+		item: Omit<z.infer<TSchema>, "id" | "createdAt"> & {
+			id?: string;
+			createdAt?: string;
+		},
 	): Promise<z.infer<TSchema>> {
 		const data = await this.findMany();
-		const newItem = this.schema.parse({
-			...item,
-			id: item.id ?? crypto.randomUUID(),
-		});
 
-		data.push(newItem);
+		const shape = this.schema.shape;
+		const newItem: Record<string, unknown> = { ...item };
+
+		// Generate id if not provided
+		if (!("id" in newItem) || !newItem.id) {
+			newItem.id = crypto.randomUUID();
+		}
+
+		// Generate createdAt if schema has it and not provided
+		if ("createdAt" in shape && !("createdAt" in newItem)) {
+			newItem.createdAt = new Date().toISOString();
+		}
+
+		const parsedItem = this.schema.parse(newItem);
+
+		data.push(parsedItem);
 		await this.upsert(data);
-		return newItem;
+		return parsedItem;
 	}
 
 	/**

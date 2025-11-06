@@ -1,71 +1,68 @@
-# activity-tracker README
+# Todos Tracker VSCode Extension
 
-This is the README for your extension "activity-tracker". After writing up a brief description, we recommend including the following sections.
+A modern Kanban board for managing your coding tasks directly inside Visual Studio Code.
 
-## Features
+## Features & Showcase
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Kanban Board:** Organize todos into columns: To Do, In Progress, and Done.
+- **Drag & Drop:** Move tasks between columns with intuitive drag-and-drop.
+- **Quick Add & Edit:** Create new tasks, edit titles inline, and delete tasks easily.
 
-For example if there is an image subfolder under your extension project workspace:
+![Kanban Board Demo](assets/showcase1.gif)
 
-\!\[feature X\]\(images/feature-x.png\)
+- **Task Details:** Click any task to open a details drawer with:
+  - Status and Priority tags (editable)
+  - Deadline picker (calendar UI)
+  - Comments field for notes
+  - Creation date
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![Task Details Demo](assets/showcase2.gif)
 
-## Requirements
+- **Status Bar Shortcut:** Instantly open the board from the VSCode status bar.
+- **Workspace Storage:** Tasks are automatically saved and loaded with your project—no setup, no fuss.
+- **Fast & Responsive:** Built with React, Vite, and Tailwind for a snappy experience.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Getting Started
+
+1. **Install:**  
+   Get it from the VSCode Marketplace or sideload the `.vsix` file.
+
+2. **Open the Board:**  
+   Click the `Todos` icon in the status bar or run `Open Todos` from the Command Palette (`Ctrl+Shift+P`).
+
+3. **Add & Manage Tasks:**  
+   Click `+ New Task` in any column, type your task, and press Enter.  
+   Drag tasks between columns or click a task to edit details, set deadlines, change priority, or add comments.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+_No configuration required._  
+All data is stored per workspace.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Only supports one board per workspace.
+- No sync between machines (local workspace only).
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+- Initial release: Kanban board, drag & drop, details drawer, status bar shortcut.
 
 ---
 
-## Following extension guidelines
+## Contributing
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Pull requests and feedback are welcome!
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+## License
 
-## Working with Markdown
+MIT © Qiyuan Chen
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+---
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+**Enjoy staying organized in VSCode!**
 
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Attribution:**  
+Logo icon (`assets/logo.png`) by [Flaticon](https://www.flaticon.com/free-icons/kanban).

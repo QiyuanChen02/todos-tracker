@@ -1,6 +1,8 @@
 // Use dayjs for date formatting
 import dayjs from "dayjs";
-import { Fragment } from "react/jsx-runtime";
+import { Fragment, useId, useState } from "react";
+import { Calendar } from "../components/Calendar";
+import { Menu } from "../components/Menu";
 
 // Helper to format ISO date to user-friendly string using dayjs
 function formatDate(dateString?: string) {
@@ -13,6 +15,12 @@ function formatDate(dateString?: string) {
 import type { SchemaTypes } from "../../../src/database/schema";
 import { todoSchema } from "../../../src/database/schema";
 import { Tag } from "../components/Tags";
+import {
+	useChangeTodoComments,
+	useChangeTodoDeadline,
+	useChangeTodoPriority,
+	useChangeTodoStatus,
+} from "../utils/changeTodoDetails";
 import { wrpc } from "../wrpc";
 
 type Properties = {
@@ -33,29 +41,17 @@ type TodoDetailsProps = {
 };
 
 export function TodoDetails({ todoId }: TodoDetailsProps) {
-	const qc = wrpc.useUtils();
+	const [showCalendar, setShowCalendar] = useState(false);
+	const commentsId = useId();
 
 	const { data: todos } = wrpc.useQuery("fetchTodos");
 	const todo = todos?.find((t) => t.id === todoId);
+	const [comments, setComments] = useState(todo?.comments || "");
 
-	const changeStatusMutation = wrpc.useMutation("changeTodoStatus", {
-		onSuccess: () => {
-			qc.invalidate("fetchTodos");
-		},
-	});
-	const changePriorityMutation = wrpc.useMutation("changeTodoPriority", {
-		onSuccess: () => {
-			qc.invalidate("fetchTodos");
-		},
-	});
-
-	const handleStatusChange = (newStatus: TodoStatus) => {
-		if (todo) changeStatusMutation.mutate({ id: todo.id, newStatus });
-	};
-
-	const handlePriorityChange = (newPriority: TodoPriority) => {
-		if (todo) changePriorityMutation.mutate({ id: todo.id, newPriority });
-	};
+	const { handleStatusChange } = useChangeTodoStatus();
+	const { handlePriorityChange } = useChangeTodoPriority();
+	const { handleDeadlineChange } = useChangeTodoDeadline();
+	const { handleCommentsChange } = useChangeTodoComments();
 
 	if (!todo) return null;
 
@@ -70,7 +66,27 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 		{
 			logoName: "codicon-clock",
 			propertyName: "Deadline",
-			component: <p className="text-sm text-muted-text">Not set</p>,
+			component: (
+				<Menu
+					isOpen={showCalendar}
+					onClose={() => setShowCalendar(false)}
+					trigger={
+						<button
+							type="button"
+							className="text-sm text-muted-text cursor-pointer hover:underline"
+							onClick={() => setShowCalendar(!showCalendar)}
+						>
+							{todo.deadline ? formatDate(todo.deadline) : "Not set"}
+						</button>
+					}
+					className="p-2"
+				>
+					<Calendar
+						selectedDate={todo.deadline ? new Date(todo.deadline) : undefined}
+						onSelect={(date) => handleDeadlineChange(todo.id, date)}
+					/>
+				</Menu>
+			),
 		},
 		{
 			logoName: "codicon-list-ordered",
@@ -80,7 +96,7 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 					text={todo.status}
 					type="status"
 					options={statusOptions}
-					onSelect={handleStatusChange}
+					onSelect={(newStatus) => handleStatusChange(todo.id, newStatus)}
 				/>
 			),
 		},
@@ -92,26 +108,15 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 					text={todo.priority}
 					type="priority"
 					options={priorityOptions}
-					onSelect={handlePriorityChange}
+					onSelect={(newPriority) => handlePriorityChange(todo.id, newPriority)}
 				/>
-			),
-		},
-		{
-			logoName: "codicon-comment",
-			propertyName: "Comments",
-			component: todo.comments ? (
-				<p className="text-sm text-text whitespace-pre-wrap wrap-break-word">
-					{todo.comments}
-				</p>
-			) : (
-				<p className="text-sm text-muted-text">No comments</p>
 			),
 		},
 	];
 
 	return (
-		<>
-			<h1 className="text-2xl font-bold text-text wrap-break-word">
+		<div className="flex flex-col h-full">
+			<h1 className="text-2xl pb-4 font-bold text-text wrap-break-word">
 				{todo.title}
 			</h1>
 			{/* Properties grid */}
@@ -129,12 +134,30 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 								{prop.propertyName}
 							</span>
 						</div>
-						<div className="text-text" key={`${prop.propertyName}-value`}>
+						<div
+							className="text-text min-h-6"
+							key={`${prop.propertyName}-value`}
+						>
 							{prop.component}
 						</div>
 					</Fragment>
 				))}
 			</div>
-		</>
+
+			{/* Divider */}
+			<div className="border-t border-muted-text/20 my-6" />
+
+			{/* Comments section */}
+			<div className="flex flex-col gap-2 flex-1 min-h-0">
+				<textarea
+					id={commentsId}
+					value={comments}
+					onChange={(e) => setComments(e.target.value)}
+					onBlur={() => handleCommentsChange(todo.id, comments)}
+					placeholder="Add any additional comments here..."
+					className="w-full flex-1 text-sm text-text bg-background resize-none focus:outline-none"
+				/>
+			</div>
+		</div>
 	);
 }

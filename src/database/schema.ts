@@ -6,14 +6,14 @@ export const todoSchema = z.object({
 	status: z.enum(["todo", "in-progress", "done"]),
 	priority: z.enum(["low", "medium", "high"]),
 	comments: z.string().optional(),
+	deadline: z.iso.datetime().optional(),
+	createdAt: z.iso.datetime(),
 });
 
 // Define all your schemas here
 export const schemas = {
 	todos: todoSchema,
 	// Add more schemas here as needed
-	// users: userSchema,
-	// projects: projectSchema,
 } as const;
 
 export type Schemas = typeof schemas;

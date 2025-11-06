@@ -2,7 +2,7 @@ import { initWRPC } from "@webview-rpc/host";
 import type * as vscode from "vscode";
 import z from "zod";
 import type { Database } from "../database/createDatabase.js";
-import { type Schemas, schemas } from "../database/schema.js";
+import { type Schemas, type SchemaTypes, schemas } from "../database/schema.js";
 
 export type Context = {
 	vsContext: vscode.ExtensionContext;
@@ -11,11 +11,27 @@ export type Context = {
 
 const { router, procedure } = initWRPC.context<Context>().create();
 
+// Helper function to update a specific field of a todo
+async function updateTodoFieldHelper<T extends keyof SchemaTypes["todos"]>(
+	db: Database<Schemas>,
+	id: string,
+	field: T,
+	value: SchemaTypes["todos"][T],
+) {
+	const todo = await db.todos.findById(id);
+	if (!todo) throw new Error("Todo not found");
+	const updatedTodo = { ...todo, [field]: value };
+	await db.todos.updateById(id, updatedTodo);
+	return updatedTodo;
+}
+
 export const appRouter = router({
-	storeTodo: procedure.input(schemas.todos).resolve(async ({ input, ctx }) => {
-		await ctx.db.todos.create(input);
-		return input;
-	}),
+	storeTodo: procedure
+		.input(schemas.todos.omit({ id: true, createdAt: true }))
+		.resolve(async ({ input, ctx }) => {
+			await ctx.db.todos.create(input);
+			return input;
+		}),
 
 	fetchTodos: procedure.resolve(async ({ ctx }) => {
 		const todos = await ctx.db.todos.findMany();
@@ -34,38 +50,74 @@ export const appRouter = router({
 			return success;
 		}),
 
-	changeTodoStatus: procedure
+	changeTodoTitle: procedure
 		.input(
 			z.object({
-				id: z.string(),
-				newStatus: z.enum(["todo", "in-progress", "done"]),
+				id: schemas.todos.shape.id,
+				newTitle: schemas.todos.shape.title,
 			}),
 		)
 		.resolve(async ({ input, ctx }) => {
-			const todo = await ctx.db.todos.findById(input.id);
-			if (!todo) {
-				throw new Error("Todo not found");
-			}
-			const updatedTodo = { ...todo, status: input.newStatus };
-			await ctx.db.todos.updateById(input.id, updatedTodo);
-			return todo;
+			return updateTodoFieldHelper(ctx.db, input.id, "title", input.newTitle);
+		}),
+
+	changeTodoStatus: procedure
+		.input(
+			z.object({
+				id: schemas.todos.shape.id,
+				newStatus: schemas.todos.shape.status,
+			}),
+		)
+		.resolve(async ({ input, ctx }) => {
+			return updateTodoFieldHelper(ctx.db, input.id, "status", input.newStatus);
 		}),
 
 	changeTodoPriority: procedure
 		.input(
 			z.object({
-				id: z.string(),
-				newPriority: z.enum(["low", "medium", "high"]),
+				id: schemas.todos.shape.id,
+				newPriority: schemas.todos.shape.priority,
 			}),
 		)
 		.resolve(async ({ input, ctx }) => {
-			const todo = await ctx.db.todos.findById(input.id);
-			if (!todo) {
-				throw new Error("Todo not found");
-			}
-			const updatedTodo = { ...todo, priority: input.newPriority };
-			await ctx.db.todos.updateById(input.id, updatedTodo);
-			return todo;
+			return updateTodoFieldHelper(
+				ctx.db,
+				input.id,
+				"priority",
+				input.newPriority,
+			);
+		}),
+
+	changeTodoDeadline: procedure
+		.input(
+			z.object({
+				id: schemas.todos.shape.id,
+				newDeadline: schemas.todos.shape.deadline,
+			}),
+		)
+		.resolve(async ({ input, ctx }) => {
+			return updateTodoFieldHelper(
+				ctx.db,
+				input.id,
+				"deadline",
+				input.newDeadline,
+			);
+		}),
+
+	changeTodoComments: procedure
+		.input(
+			z.object({
+				id: schemas.todos.shape.id,
+				newComments: schemas.todos.shape.comments,
+			}),
+		)
+		.resolve(async ({ input, ctx }) => {
+			return updateTodoFieldHelper(
+				ctx.db,
+				input.id,
+				"comments",
+				input.newComments,
+			);
 		}),
 });
 

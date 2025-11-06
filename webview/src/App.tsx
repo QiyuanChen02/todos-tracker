@@ -27,9 +27,11 @@ export default function App() {
 		<div className="h-screen bg-background p-8">
 			<div className="h-full max-w-7xl mx-auto flex flex-col">
 				<header className="mb-6">
-					<h1 className="text-2xl font-bold text-text mb-2">TODOs Tracker</h1>
+					<h1 className="text-2xl font-bold text-text mb-2">
+						Workspace TODO Manager
+					</h1>
 					<p className="text-muted-text">
-						Manage your code TODOs across your workspace
+						Organize, track, and complete your coding tasks with ease
 					</p>
 				</header>
 

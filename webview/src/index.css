@@ -31,4 +31,9 @@
   --color-card: var(--vscode-editor-background, #2d2d30);
   --color-column-bg: var(--vscode-sideBar-background, #252526);
   --color-column-header: var(--vscode-sideBarSectionHeader-background, #2d2d30);
+
+}
+
+.rdp-root {
+  --rdp-accent-color: var(--color-muted) !important;
 }

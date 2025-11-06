@@ -388,22 +388,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@webview-rpc/host@npm:^1.0.16":
-  version: 1.0.16
-  resolution: "@webview-rpc/host@npm:1.0.16"
+"@webview-rpc/host@npm:^1.0.17":
+  version: 1.0.17
+  resolution: "@webview-rpc/host@npm:1.0.17"
   dependencies:
-    "@webview-rpc/shared": 1.0.16
+    "@webview-rpc/shared": 1.0.17
     zod: ^4.1.11
-  checksum: 384f21e7c2bb699d26a97ad5559e949b1220b8679b02d39257a4a9081b388bac3ca83ba5271e150ba58bd386201fa6f05eccb1c8bf50d29ad52614b78cbdb210
+  checksum: 6aad55d7a2de860b8a0d340be6ce9fe8d7fe416518beb3039a4dce85d8de55b026abffe213a63c53ef7c7bc00f5d137f30b56389036936f79f330fe6f950adc3
   languageName: node
   linkType: hard
 
-"@webview-rpc/shared@npm:1.0.16":
-  version: 1.0.16
-  resolution: "@webview-rpc/shared@npm:1.0.16"
+"@webview-rpc/shared@npm:1.0.17":
+  version: 1.0.17
+  resolution: "@webview-rpc/shared@npm:1.0.17"
   dependencies:
     zod: ^4.1.11
-  checksum: 2c8753b6855c61a50249efaa60bf4957423e5da8df2c8426eda155878bf35ce832a4e3e9bfa21391f77594dc7f0cb734d18275a54f303ece17d17a954a051be9
+  checksum: 27cd17fddbafb9db00ed951664e0e83045f18a866e5b3a4527df0ca8b0722517777f5e9d8941a6017abcc7d3f6c76df115c4c03fdd8139f59db5ca927c916f02
   languageName: node
   linkType: hard
 
@@ -443,7 +443,7 @@ __metadata:
     "@vscode/codicons": ^0.0.41
     "@vscode/test-cli": ^0.0.11
     "@vscode/test-electron": ^2.5.2
-    "@webview-rpc/host": ^1.0.16
+    "@webview-rpc/host": ^1.0.17
     eslint: ^9.38.0
     typescript: ^5.9.3
     zod: ^4.1.12

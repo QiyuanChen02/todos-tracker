@@ -99,7 +99,6 @@ export function BoardColumn({
 				{isCreating && (
 					<TodoInput
 						placeholder="Task title..."
-						submitting={storeTodo.isPending}
 						onSubmit={saveDraft}
 						onCancel={() => setIsCreating(false)}
 					/>

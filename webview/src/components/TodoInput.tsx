@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type TodoInputProps = {
 	initialValue?: string;
 	placeholder?: string;
-	submitting?: boolean;
 	onSubmit: (value: string) => void;
 	onCancel: () => void;
 };
@@ -11,7 +10,6 @@ type TodoInputProps = {
 export function TodoInput({
 	initialValue = "",
 	placeholder = "Task title...",
-	submitting = false,
 	onSubmit,
 	onCancel,
 }: TodoInputProps) {
@@ -19,9 +17,33 @@ export function TodoInput({
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 	useEffect(() => {
-		const id = setTimeout(() => textareaRef.current?.focus(), 0);
+		const id = setTimeout(() => {
+			if (textareaRef.current) {
+				textareaRef.current.focus();
+				// Move cursor to end of text
+				const len = textareaRef.current.value.length;
+				textareaRef.current.setSelectionRange(len, len);
+			}
+		}, 0);
 		return () => clearTimeout(id);
 	}, []);
+
+	const adjustHeight = useCallback(() => {
+		const textarea = textareaRef.current;
+		if (textarea) {
+			textarea.style.height = "auto";
+			textarea.style.height = `${textarea.scrollHeight}px`;
+		}
+	}, []);
+
+	useEffect(() => {
+		adjustHeight();
+	}, [adjustHeight]);
+
+	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setValue(e.target.value);
+		adjustHeight();
+	};
 
 	const doSubmit = () => {
 		onSubmit(value);
@@ -49,11 +71,9 @@ export function TodoInput({
 				className="w-full bg-transparent outline-none text-sm text-text resize-none"
 				placeholder={placeholder}
 				value={value}
-				onChange={(e) => setValue(e.target.value)}
+				onChange={handleChange}
 				onBlur={() => onSubmit(value)}
 				onKeyDown={handleKeyDown}
-				disabled={submitting}
-				rows={1}
 			/>
 		</div>
 	);
