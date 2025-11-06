@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { SchemaTypes } from "../../src/database/schema";
 import { Drawer } from "./components/Drawer";
 import { BoardColumn } from "./layout/BoardColumn";
 import { DragDrop } from "./layout/DragDrop";

@@ -1,4 +1,15 @@
+// Use dayjs for date formatting
+import dayjs from "dayjs";
 import { Fragment } from "react/jsx-runtime";
+
+// Helper to format ISO date to user-friendly string using dayjs
+function formatDate(dateString?: string) {
+	if (!dateString) return "Not set";
+	const date = dayjs(dateString);
+	if (!date.isValid()) return "Invalid date";
+	return date.format("MMMM D, YYYY");
+}
+
 import type { SchemaTypes } from "../../../src/database/schema";
 import { todoSchema } from "../../../src/database/schema";
 import { Tag } from "../components/Tags";
@@ -52,7 +63,9 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 		{
 			logoName: "codicon-calendar",
 			propertyName: "Date Created",
-			component: <p className="text-sm text-muted-text">Not set</p>,
+			component: (
+				<p className="text-sm text-muted-text">{formatDate(todo.createdAt)}</p>
+			),
 		},
 		{
 			logoName: "codicon-clock",

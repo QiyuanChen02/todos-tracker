@@ -58,7 +58,6 @@ export function BoardColumn({
 
 	const saveDraft = (title: string) => {
 		storeTodo.mutate({
-			id: crypto.randomUUID(),
 			title: title,
 			status: columnId,
 			priority: "medium",
