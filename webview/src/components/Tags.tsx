@@ -1,12 +1,27 @@
 import { useState } from "react";
 import type { SchemaTypes } from "../../../src/database/schema";
 import { cn } from "../utils/cn";
-import {
-	colorClassMap,
-	priorityColorMap,
-	statusColorMap,
-} from "../utils/colorMap";
 import { Menu } from "./Menu";
+
+type TagColor = "red" | "yellow" | "green";
+
+const statusColorMap: Record<SchemaTypes["todos"]["status"], TagColor> = {
+	todo: "red",
+	"in-progress": "yellow",
+	done: "green",
+};
+
+const priorityColorMap: Record<SchemaTypes["todos"]["priority"], TagColor> = {
+	high: "red",
+	medium: "yellow",
+	low: "green",
+};
+
+const colorClassMap: Record<TagColor, string> = {
+	red: "border-2 border-danger",
+	yellow: "border-2 border-primary",
+	green: "border-2 border-success",
+};
 
 // Map type to allowed values
 type TagTypeMap = {
@@ -21,6 +36,8 @@ export type TagProps<T extends TagType = TagType> = {
 	type: T;
 	options: TagTypeMap[T][];
 	onSelect: (value: TagTypeMap[T]) => void;
+	disabled?: boolean;
+	readOnly?: boolean; // <-- Add this line
 };
 
 export function Tag<T extends TagType>({
@@ -28,6 +45,8 @@ export function Tag<T extends TagType>({
 	type,
 	options,
 	onSelect,
+	disabled = false,
+	readOnly = false, // <-- Add this line
 }: TagProps<T>) {
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -44,9 +63,22 @@ export function Tag<T extends TagType>({
 
 	const colorClass = colorClassMap[colorKey];
 
+	if (readOnly) {
+		return (
+			<span
+				className={cn(
+					"inline-flex items-center px-4 py-1 rounded-lg text-xs border font-semibold bg-surface",
+					colorClass,
+				)}
+			>
+				{text}
+			</span>
+		);
+	}
+
 	return (
 		<Menu
-			isOpen={isOpen}
+			isOpen={isOpen && !disabled}
 			onClose={() => setIsOpen(false)}
 			trigger={
 				<button
@@ -56,8 +88,10 @@ export function Tag<T extends TagType>({
 						colorClass,
 						"cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary bg-surface",
 						isOpen && "bg-surface-2",
+						disabled && "pointer-events-none select-none",
 					)}
-					onClick={() => setIsOpen(!isOpen)}
+					onClick={() => !disabled && setIsOpen(!isOpen)}
+					disabled={disabled}
 				>
 					{text}
 				</button>
@@ -75,6 +109,8 @@ export function Tag<T extends TagType>({
 								option === text ? "bg-column-bg" : "",
 							)}
 							onClick={() => handleSelect(option)}
+							disabled={disabled}
+							tabIndex={disabled ? -1 : 0}
 						>
 							{option}
 						</button>

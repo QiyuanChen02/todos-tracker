@@ -47,7 +47,6 @@ export function Drawer({ open, onClose, title, children }: DrawerProps) {
 							e.stopPropagation();
 							onClose();
 						}}
-						className="cursor-pointer"
 					/>
 				</header>
 

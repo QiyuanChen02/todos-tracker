@@ -14,10 +14,7 @@ function findColumnByTodoId(
 	id: string,
 ): ColumnId | null {
 	const columnIds = Object.keys(columns) as ColumnId[];
-	return (
-		columnIds.find((col) => columns[col].some((t) => String(t.id) === id)) ??
-		null
-	);
+	return columnIds.find((col) => columns[col].some((t) => t.id === id)) ?? null;
 }
 
 function getColumnsFromData(
@@ -36,8 +33,12 @@ interface DragDropProps {
 }
 
 export function DragDrop({ data, children }: DragDropProps) {
+	const qc = wrpc.useUtils();
 	const changeStatusMutation = wrpc.useMutation("changeTodoStatus", {
-		onSuccess: (data) => console.log("Updated todo:", data),
+		onSuccess: (data) => {
+			console.log("Updated todo:", data);
+			qc.invalidate("fetchTodos");
+		},
 	});
 
 	const [todoColumns, setTodoColumns] = useState(() =>

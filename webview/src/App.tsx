@@ -1,27 +1,37 @@
-import { useEffect, useState } from "react";
-import { Drawer } from "./components/Drawer";
-import { BoardColumn } from "./layout/BoardColumn";
-import { DragDrop } from "./layout/DragDrop";
-import { TodoDetails } from "./layout/TodoDetails";
+import { useState } from "react";
+import { CalendarView } from "./tabs/CalendarView";
+import { KanbanView } from "./tabs/KanbanView";
+import { cn } from "./utils/cn";
 import { wrpc } from "./wrpc";
 
-type ColumnId = "todo" | "in-progress" | "done";
+type TabId = "kanban" | "calendar";
+
+interface TabButtonProps {
+	active: boolean;
+	onClick: () => void;
+	children: React.ReactNode;
+}
+
+function TabButton({ active, onClick, children }: TabButtonProps) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={cn(
+				"px-4 py-2 font-medium transition-colors",
+				active
+					? "text-text border-b-2 border-accent"
+					: "text-muted-text hover:text-text",
+			)}
+		>
+			{children}
+		</button>
+	);
+}
 
 export default function App() {
 	const { data } = wrpc.useQuery("fetchTodos");
-	const columnIds: ColumnId[] = ["todo", "in-progress", "done"];
-	const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
-
-	const handleCloseDrawer = () => {
-		setDrawerOpen(false);
-		setTimeout(() => setSelectedTodoId(null), 500);
-	};
-
-	const [drawerOpen, setDrawerOpen] = useState(false);
-
-	useEffect(() => {
-		setDrawerOpen(!!selectedTodoId);
-	}, [selectedTodoId]);
+	const [activeTab, setActiveTab] = useState<TabId>("kanban");
 
 	return (
 		<div className="h-screen bg-background p-8">
@@ -35,28 +45,33 @@ export default function App() {
 					</p>
 				</header>
 
-				<DragDrop data={data}>
-					{(todoColumns) => (
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
-							{columnIds.map((columnId) => (
-								<BoardColumn
-									key={columnId}
-									columnId={columnId}
-									todos={todoColumns[columnId]}
-									onOpenDetails={(t) => setSelectedTodoId(t.id)}
-								/>
-							))}
-						</div>
-					)}
-				</DragDrop>
+				{/* Tabs */}
+				<div className="flex gap-2 mb-6 border-b border-border">
+					<TabButton
+						active={activeTab === "kanban"}
+						onClick={() => setActiveTab("kanban")}
+					>
+						Kanban
+					</TabButton>
+					<TabButton
+						active={activeTab === "calendar"}
+						onClick={() => setActiveTab("calendar")}
+					>
+						Calendar
+					</TabButton>
+				</div>
+
+				{/* Tab Content */}
+				{activeTab === "kanban" ? (
+					<div className="h-[calc(100vh-200px)]">
+						<KanbanView data={data} />
+					</div>
+				) : (
+					<div className="h-[calc(100vh-200px)]">
+						<CalendarView data={data} />
+					</div>
+				)}
 			</div>
-			<Drawer
-				open={drawerOpen}
-				onClose={handleCloseDrawer}
-				title="Todo details"
-			>
-				{selectedTodoId && <TodoDetails todoId={selectedTodoId} />}
-			</Drawer>
 		</div>
 	);
 }

@@ -29,8 +29,8 @@ export const appRouter = router({
 	storeTodo: procedure
 		.input(schemas.todos.omit({ id: true, createdAt: true }))
 		.resolve(async ({ input, ctx }) => {
-			await ctx.db.todos.create(input);
-			return input;
+			const newTodo = await ctx.db.todos.create(input);
+			return newTodo;
 		}),
 
 	fetchTodos: procedure.resolve(async ({ ctx }) => {

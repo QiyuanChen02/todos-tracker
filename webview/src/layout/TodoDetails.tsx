@@ -14,12 +14,14 @@ function formatDate(dateString?: string) {
 
 import type { SchemaTypes } from "../../../src/database/schema";
 import { todoSchema } from "../../../src/database/schema";
+import { ResizingTextarea } from "../components/ResizingTextarea";
 import { Tag } from "../components/Tags";
 import {
 	useChangeTodoComments,
 	useChangeTodoDeadline,
 	useChangeTodoPriority,
 	useChangeTodoStatus,
+	useChangeTodoTitle,
 } from "../utils/changeTodoDetails";
 import { wrpc } from "../wrpc";
 
@@ -42,16 +44,19 @@ type TodoDetailsProps = {
 
 export function TodoDetails({ todoId }: TodoDetailsProps) {
 	const [showCalendar, setShowCalendar] = useState(false);
+	const titleId = useId();
 	const commentsId = useId();
 
 	const { data: todos } = wrpc.useQuery("fetchTodos");
 	const todo = todos?.find((t) => t.id === todoId);
+	const [title, setTitle] = useState(todo?.title || "");
 	const [comments, setComments] = useState(todo?.comments || "");
 
 	const { handleStatusChange } = useChangeTodoStatus();
 	const { handlePriorityChange } = useChangeTodoPriority();
 	const { handleDeadlineChange } = useChangeTodoDeadline();
 	const { handleCommentsChange } = useChangeTodoComments();
+	const { handleTitleChange } = useChangeTodoTitle();
 
 	if (!todo) return null;
 
@@ -116,9 +121,16 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 
 	return (
 		<div className="flex flex-col h-full">
-			<h1 className="text-2xl pb-4 font-bold text-text wrap-break-word">
-				{todo.title}
-			</h1>
+			{/* Title textarea */}
+			<ResizingTextarea
+				id={titleId}
+				value={title}
+				onChange={(e) => setTitle(e.target.value)}
+				onBlur={() => handleTitleChange(todo.id, title)}
+				placeholder="Task title..."
+				className="text-2xl pb-4 font-bold text-text bg-background"
+				minHeight="2.5rem"
+			/>
 			{/* Properties grid */}
 			<div className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-4 pt-2">
 				{properties.map((prop) => (
@@ -149,13 +161,13 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 
 			{/* Comments section */}
 			<div className="flex flex-col gap-2 flex-1 min-h-0">
-				<textarea
+				<ResizingTextarea
 					id={commentsId}
 					value={comments}
 					onChange={(e) => setComments(e.target.value)}
 					onBlur={() => handleCommentsChange(todo.id, comments)}
 					placeholder="Add any additional comments here..."
-					className="w-full flex-1 text-sm text-text bg-background resize-none focus:outline-none"
+					className="flex-1 text-sm text-text bg-background"
 				/>
 			</div>
 		</div>

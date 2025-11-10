@@ -6,7 +6,8 @@ src/**
 **/*.map
 **/*.ts
 **/.vscode-test.*
-assets/**
 
+.yarn/**
+assets/**
 webview/**
 !webview/dist/**

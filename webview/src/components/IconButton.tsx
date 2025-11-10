@@ -20,7 +20,7 @@ export function IconButton({
 			onClick={onClick}
 			title={title}
 			className={cn(
-				"flex items-center w-6 h-6 justify-center focus:outline-none",
+				"flex items-center w-6 h-6 transition-colors justify-center cursor-pointer hover:text-text focus:outline-none",
 				className,
 			)}
 		>
