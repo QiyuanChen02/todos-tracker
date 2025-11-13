@@ -2,14 +2,6 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "webview: build",
-			"type": "npm",
-			"script": "build",
-			"path": "webview",
-			"problemMatcher": [],
-			"presentation": { "reveal": "never" }
-		},
-		{
 			"label": "webview: dev",
 			"type": "npm",
 			"script": "dev",
@@ -20,7 +12,6 @@
 					"pattern": { "regexp": "^(?!x)x" },
 					"background": {
 						"activeOnStart": true,
-						// Anything to mark "starting" (first line will do)
 						"beginsPattern": ".*",
 						"endsPattern": ".*"
 					}
@@ -46,11 +37,5 @@
 			"dependsOrder": "parallel",
 			"group": { "kind": "build", "isDefault": true }
 		}
-		// {
-		//   "label": "build+watch",
-		//   "dependsOn": ["webview: build", "extension: watch"],
-		//   "dependsOrder": "sequence",
-		//   "group": { "kind": "build", "isDefault": true }
-		// }
 	]
 }

@@ -87,7 +87,6 @@ export function TodoCard({
 								handleEdit();
 							}}
 							title="Edit todo"
-							className="text-muted-text hover:text-text bg-panel-bg"
 						/>
 						<IconButton
 							iconName="codicon-trash"
@@ -96,7 +95,6 @@ export function TodoCard({
 								handleDelete();
 							}}
 							title="Delete todo"
-							className="text-muted-text hover:text-text bg-panel-bg"
 						/>
 					</div>
 					<div className="space-y-3 min-h-5">

@@ -39,11 +39,6 @@ A modern Kanban board for managing your coding tasks directly inside Visual Stud
 _No configuration required._  
 All data is stored per workspace.
 
-## Known Issues
-
-- Only supports one board per workspace.
-- No sync between machines (local workspace only).
-
 ## Release Notes
 
 ### 0.0.1

@@ -17,14 +17,42 @@ function findColumnByTodoId(
 	return columnIds.find((col) => columns[col].some((t) => t.id === id)) ?? null;
 }
 
+// Helper: sort todos based on kanban order
+function sortTodosByOrder(todos: Todos, orderMap: Map<string, number>): Todos {
+	return [...todos].sort((a, b) => {
+		const orderA = orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+		const orderB = orderMap.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+		return orderA - orderB;
+	});
+}
+
 function getColumnsFromData(
 	data: OutputAtPath<AppRouter, "fetchTodos"> | undefined,
+	kanbanOrders: OutputAtPath<AppRouter, "fetchKanbanOrder"> | undefined,
 ): Record<ColumnId, NonNullable<typeof data>> {
-	return {
+	const unsortedColumns = {
 		todo: data?.filter((todo) => todo.status === "todo") ?? [],
 		"in-progress": data?.filter((todo) => todo.status === "in-progress") ?? [],
 		done: data?.filter((todo) => todo.status === "done") ?? [],
 	};
+
+	// If we have kanban orders, sort each column based on the order
+	if (kanbanOrders && kanbanOrders.length > 0) {
+		const columns = { ...unsortedColumns };
+
+		for (const columnId of Object.keys(columns) as ColumnId[]) {
+			const order = kanbanOrders.find((o) => o.id === columnId);
+			if (order?.todoIds) {
+				// Create a map of todoId -> index for efficient lookup
+				const orderMap = new Map(order.todoIds.map((id, index) => [id, index]));
+				columns[columnId] = sortTodosByOrder(columns[columnId], orderMap);
+			}
+		}
+
+		return columns;
+	}
+
+	return unsortedColumns;
 }
 
 interface DragDropProps {
@@ -34,6 +62,10 @@ interface DragDropProps {
 
 export function DragDrop({ data, children }: DragDropProps) {
 	const qc = wrpc.useUtils();
+
+	// Fetch kanban order from server
+	const { data: kanbanOrders } = wrpc.useQuery("fetchKanbanOrder");
+
 	const changeStatusMutation = wrpc.useMutation("changeTodoStatus", {
 		onSuccess: (data) => {
 			console.log("Updated todo:", data);
@@ -41,16 +73,22 @@ export function DragDrop({ data, children }: DragDropProps) {
 		},
 	});
 
+	const updateOrderMutation = wrpc.useMutation("updateKanbanOrder", {
+		onSuccess: () => {
+			qc.invalidate("fetchKanbanOrder");
+		},
+	});
+
 	const [todoColumns, setTodoColumns] = useState(() =>
-		getColumnsFromData(data),
+		getColumnsFromData(data, kanbanOrders),
 	);
 
 	// Keep track of the column where the drag started
 	const dragFromRef = useRef<ColumnId | null>(null);
 
 	useEffect(() => {
-		setTodoColumns(getColumnsFromData(data));
-	}, [data]);
+		setTodoColumns(getColumnsFromData(data, kanbanOrders));
+	}, [data, kanbanOrders]);
 
 	const handleDragStart = (e: Parameters<DragDropEvents["dragstart"]>[0]) => {
 		const id = String(e?.operation?.source?.id);
@@ -64,13 +102,28 @@ export function DragDrop({ data, children }: DragDropProps) {
 	const handleDragEnd = (e: Parameters<DragDropEvents["dragend"]>[0]) => {
 		const todoId = String(e?.operation?.source?.id);
 		const from = dragFromRef.current;
-		setTodoColumns((prev) => move(prev, e));
 		const nextColumns = move(todoColumns, e);
+		setTodoColumns(nextColumns);
 		const to = findColumnByTodoId(nextColumns, todoId);
+
+		// Update status if moved to a different column
 		if (from && to && from !== to) {
 			changeStatusMutation.mutate({
 				id: todoId,
 				newStatus: to,
+			});
+		}
+
+		// Always update the order for affected columns
+		const columnsToUpdate = new Set<ColumnId>();
+		if (from) columnsToUpdate.add(from);
+		if (to) columnsToUpdate.add(to);
+
+		for (const columnId of columnsToUpdate) {
+			const todoIds = nextColumns[columnId].map((todo) => todo.id);
+			updateOrderMutation.mutate({
+				columnId,
+				todoIds,
 			});
 		}
 	};
