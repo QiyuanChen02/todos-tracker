@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { CalendarView } from "./tabs/CalendarView";
 import { KanbanView } from "./tabs/KanbanView";
 import { cn } from "./utils/cn";
@@ -18,7 +17,7 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
 			type="button"
 			onClick={onClick}
 			className={cn(
-				"px-4 py-2 font-medium transition-colors",
+				"px-4 py-2 font-medium transition-colors cursor-pointer",
 				active
 					? "text-text border-b-2 border-accent"
 					: "text-muted-text hover:text-text",
@@ -30,8 +29,23 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
 }
 
 export default function App() {
-	const { data } = wrpc.useQuery("fetchTodos");
-	const [activeTab, setActiveTab] = useState<TabId>("kanban");
+	const { data: workspaceState } = wrpc.useQuery(
+		"workspaceState.getWorkspaceState",
+	);
+
+	const qc = wrpc.useUtils();
+	const updateTab = wrpc.useMutation("workspaceState.updateCurrentTab", {
+		onSuccess: () => qc.invalidate("workspaceState.getWorkspaceState"),
+	});
+
+	const activeTab: TabId = workspaceState?.currentTab ?? "kanban";
+
+	// Persist tab changes
+	const handleTabChange = (tab: TabId) => {
+		updateTab.mutate({ tab });
+	};
+
+	if (!workspaceState) return null;
 
 	return (
 		<div className="h-screen bg-background p-8">
@@ -49,13 +63,13 @@ export default function App() {
 				<div className="flex gap-2 mb-6 border-b border-border">
 					<TabButton
 						active={activeTab === "kanban"}
-						onClick={() => setActiveTab("kanban")}
+						onClick={() => handleTabChange("kanban")}
 					>
 						Kanban
 					</TabButton>
 					<TabButton
 						active={activeTab === "calendar"}
-						onClick={() => setActiveTab("calendar")}
+						onClick={() => handleTabChange("calendar")}
 					>
 						Calendar
 					</TabButton>
@@ -64,11 +78,11 @@ export default function App() {
 				{/* Tab Content */}
 				{activeTab === "kanban" ? (
 					<div className="h-[calc(100vh-200px)]">
-						<KanbanView data={data} />
+						<KanbanView />
 					</div>
 				) : (
 					<div className="h-[calc(100vh-200px)]">
-						<CalendarView data={data} />
+						<CalendarView />
 					</div>
 				)}
 			</div>

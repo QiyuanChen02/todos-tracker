@@ -1,33 +1,54 @@
-import type { OutputAtPath } from "@webview-rpc/shared";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-import { useState } from "react";
-import type { SchemaTypes } from "../../../src/database/schema";
-import type { AppRouter } from "../../../src/router/router";
+import { useEffect, useState } from "react";
+import type { Todo } from "../../../src/storage/schema";
 import { Drawer } from "../components/Drawer";
+import { IconButton } from "../components/IconButton";
 import { Modal } from "../components/Modal";
 import { CalendarColumn } from "../layout/CalendarColumn";
 import { CalendarDragDrop } from "../layout/CalendarDragDrop";
 import { TodoDetails } from "../layout/TodoDetails";
 import { formatWeekMonth } from "../utils/formatWeekMonth";
+import { useInvalidateTodos } from "../utils/invalidateTodos";
 import { wrpc } from "../wrpc";
 
 dayjs.extend(isoWeek);
 
-interface CalendarViewProps {
-	data: OutputAtPath<AppRouter, "fetchTodos"> | undefined;
-}
-
-export function CalendarView({ data }: CalendarViewProps) {
-	const [currentWeekStart, setCurrentWeekStart] = useState(() =>
-		dayjs().startOf("week"),
+export function CalendarView() {
+	const { data: workspaceState } = wrpc.useQuery(
+		"workspaceState.getWorkspaceState",
 	);
+	const updateWeek = wrpc.useMutation("workspaceState.updateCalendarWeek");
+
+	const [currentWeekStart, setCurrentWeekStart] = useState(() => {
+		// Use stored week if available, otherwise use current week
+		return dayjs().startOf("week");
+	});
+
 	const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
 	const [createdTodoId, setCreatedTodoId] = useState<string | null>(null);
 
-	const storeTodo = wrpc.useMutation("storeTodo");
+	// Update currentWeekStart when workspace state loads
+	useEffect(() => {
+		if (workspaceState?.calendarWeek) {
+			setCurrentWeekStart(dayjs(workspaceState.calendarWeek).startOf("week"));
+		}
+	}, [workspaceState]);
 
-	const handleOpenDetails = (todo: SchemaTypes["todos"]) => {
+	// Persist week changes
+	useEffect(() => {
+		updateWeek.mutate({ week: currentWeekStart.toISOString() });
+	}, [currentWeekStart, updateWeek]);
+
+	const invalidateTodos = useInvalidateTodos();
+	const storeTodo = wrpc.useMutation("todo.storeTodo", {
+		onSuccess: (newTodo) => {
+			invalidateTodos();
+			setCreatedTodoId(newTodo.id);
+		},
+	});
+
+	const handleOpenDetails = (todo: Todo) => {
 		setSelectedTodoId(todo.id);
 	};
 
@@ -49,19 +70,12 @@ export function CalendarView({ data }: CalendarViewProps) {
 	);
 
 	const handleAddTodo = (day: dayjs.Dayjs) => {
-		storeTodo.mutate(
-			{
-				title: "New Task",
-				status: "todo",
-				priority: "medium",
-				deadline: day.startOf("day").toISOString(),
-			},
-			{
-				onSuccess: (newTodo) => {
-					setCreatedTodoId(newTodo.id);
-				},
-			},
-		);
+		storeTodo.mutate({
+			title: "New Task",
+			status: "todo",
+			priority: "medium",
+			deadline: day.startOf("day").toISOString(),
+		});
 	};
 
 	const handleCloseDrawer = () => {
@@ -79,35 +93,32 @@ export function CalendarView({ data }: CalendarViewProps) {
 				<h2 className="text-xl font-semibold text-text">
 					{formatWeekMonth(currentWeekStart)}
 				</h2>
-				<div className="flex gap-2">
-					<button
-						type="button"
+				<div className="flex items-center gap-1">
+					{/* Previous week */}
+					<IconButton
+						iconName="codicon-chevron-left"
 						onClick={goToPreviousWeek}
-						className="px-4 py-2 rounded bg-surface text-text border border-divider hover:bg-hover transition-colors cursor-pointer"
-						aria-label="Previous week"
-					>
-						&lt;
-					</button>
+						title="Previous week"
+					/>
+					{/* Today button styled to match */}
 					<button
 						type="button"
 						onClick={goToToday}
-						className="px-4 py-2 rounded bg-surface text-text border border-divider hover:bg-hover transition-colors cursor-pointer"
+						className="mx-1 px-3 py-1 rounded text-white font-medium focus:outline-none border border-accent transition-colors cursor-pointer hover:text-text hover:border-text"
 					>
 						Today
 					</button>
-					<button
-						type="button"
+					{/* Next week */}
+					<IconButton
+						iconName="codicon-chevron-right"
 						onClick={goToNextWeek}
-						className="px-4 py-2 rounded bg-surface text-text border border-divider hover:bg-hover transition-colors cursor-pointer"
-						aria-label="Next week"
-					>
-						&gt;
-					</button>
+						title="Next week"
+					/>
 				</div>
 			</div>
 
 			{/* Calendar Grid with Drag and Drop */}
-			<CalendarDragDrop data={data} weekDays={weekDays}>
+			<CalendarDragDrop weekDays={weekDays}>
 				{(todoColumns) => (
 					<div className="grid grid-cols-7 flex-1 overflow-hidden">
 						{weekDays.map((day, index) => {
@@ -139,14 +150,14 @@ export function CalendarView({ data }: CalendarViewProps) {
 				</Drawer>
 			)}
 
-			{/* Modal for editing newly created todo */}
+			{/* Modal for adding a new todo */}
 			{createdTodoId && (
 				<Modal
 					open={!!createdTodoId}
 					onClose={handleCloseModal}
-					title="Edit Task"
+					title="Add Task"
 				>
-					<TodoDetails todoId={createdTodoId} />
+					<TodoDetails todoId={createdTodoId} autoFocusTitle />
 				</Modal>
 			)}
 		</div>

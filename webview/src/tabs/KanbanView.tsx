@@ -1,7 +1,5 @@
-import type { OutputAtPath } from "@webview-rpc/shared";
 import { useEffect, useState } from "react";
-import type { SchemaTypes } from "../../../src/database/schema";
-import type { AppRouter } from "../../../src/router/router";
+import type { Todo } from "../../../src/storage/schema";
 import { Drawer } from "../components/Drawer";
 import { BoardColumn } from "../layout/BoardColumn";
 import { DragDrop } from "../layout/KanbanDragDrop";
@@ -9,11 +7,7 @@ import { TodoDetails } from "../layout/TodoDetails";
 
 type ColumnId = "todo" | "in-progress" | "done";
 
-interface KanbanViewProps {
-	data: OutputAtPath<AppRouter, "fetchTodos"> | undefined;
-}
-
-export function KanbanView({ data }: KanbanViewProps) {
+export function KanbanView() {
 	const columnIds: ColumnId[] = ["todo", "in-progress", "done"];
 	const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
 	const [drawerOpen, setDrawerOpen] = useState(false);
@@ -23,7 +17,7 @@ export function KanbanView({ data }: KanbanViewProps) {
 		setTimeout(() => setSelectedTodoId(null), 500);
 	};
 
-	const handleOpenDetails = (todo: SchemaTypes["todos"]) => {
+	const handleOpenDetails = (todo: Todo) => {
 		setSelectedTodoId(todo.id);
 	};
 
@@ -33,7 +27,7 @@ export function KanbanView({ data }: KanbanViewProps) {
 
 	return (
 		<>
-			<DragDrop data={data}>
+			<DragDrop>
 				{(todoColumns) => (
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
 						{columnIds.map((columnId) => (

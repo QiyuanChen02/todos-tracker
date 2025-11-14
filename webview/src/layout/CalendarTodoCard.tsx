@@ -1,20 +1,21 @@
 import { useSortable } from "@dnd-kit/react/sortable";
-import type { SchemaTypes } from "../../../src/database/schema";
+import type { Todo } from "../../../src/storage/schema";
 import { IconButton } from "../components/IconButton";
 import { Tag } from "../components/Tags";
 import { cn } from "../utils/cn";
+import { useInvalidateTodos } from "../utils/invalidateTodos";
 import { wrpc } from "../wrpc";
 
 interface CalendarTodoCardProps {
-	todo: SchemaTypes["todos"];
-	index: number;
+	todo: Todo;
+	index?: number;
 	columnId: string;
-	onOpenDetails?: (todo: SchemaTypes["todos"]) => void;
+	onOpenDetails?: (todo: Todo) => void;
 }
 
 export function CalendarTodoCard({
 	todo,
-	index,
+	index = 0,
 	columnId,
 	onOpenDetails,
 }: CalendarTodoCardProps) {
@@ -24,13 +25,10 @@ export function CalendarTodoCard({
 		group: columnId,
 	});
 
-	const qc = wrpc.useUtils();
-	const changePriority = wrpc.useMutation("changeTodoPriority", {
-		onSuccess: () => qc.invalidate("fetchTodos"),
-	});
+	const invalidateTodos = useInvalidateTodos();
 
-	const deleteTodo = wrpc.useMutation("deleteTodo", {
-		onSuccess: () => qc.invalidate("fetchTodos"),
+	const deleteTodo = wrpc.useMutation("todo.deleteTodo", {
+		onSuccess: invalidateTodos,
 	});
 
 	const handleClick = () => {
@@ -63,9 +61,15 @@ export function CalendarTodoCard({
 			)}
 		>
 			<div className="flex items-center justify-between mb-1">
-				<h3 className="text-xs font-medium text-text line-clamp-2 flex-1">
-					{todo.title}
-				</h3>
+				{todo.title.trim() ? (
+					<h3 className="text-xs font-medium text-text line-clamp-2 flex-1">
+						{todo.title}
+					</h3>
+				) : (
+					<h3 className="text-xs font-medium text-muted-text italic line-clamp-2 flex-1">
+						Untitled task
+					</h3>
+				)}
 				<IconButton
 					iconName="codicon-trash"
 					title="Delete"
@@ -78,9 +82,7 @@ export function CalendarTodoCard({
 					text={todo.priority}
 					type="priority"
 					options={["high", "medium", "low"]}
-					onSelect={(priority) => {
-						changePriority.mutate({ id: todo.id, newPriority: priority });
-					}}
+					onSelect={() => void 0}
 					disabled
 				/>
 			</div>

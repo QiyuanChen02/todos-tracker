@@ -1,10 +1,11 @@
 import { useDroppable } from "@dnd-kit/react";
 import type { OutputAtPath } from "@webview-rpc/shared";
 import { useState } from "react";
-import type { SchemaTypes } from "../../../src/database/schema";
 import type { AppRouter } from "../../../src/router/router";
+import type { Todo } from "../../../src/storage/schema";
 import { TodoInput } from "../components/TodoInput";
 import { cn } from "../utils/cn";
+import { useInvalidateTodos } from "../utils/invalidateTodos";
 import { wrpc } from "../wrpc";
 import { TodoCard } from "./TodoCard";
 
@@ -12,8 +13,8 @@ type ColumnId = "todo" | "in-progress" | "done";
 
 interface BoardColumnProps {
 	columnId: ColumnId;
-	todos: OutputAtPath<AppRouter, "fetchTodos">;
-	onOpenDetails?: (todo: SchemaTypes["todos"]) => void;
+	todos: OutputAtPath<AppRouter, "todo.fetchTodos">;
+	onOpenDetails?: (todo: Todo) => void;
 }
 
 function getColumnTitle(columnId: ColumnId) {
@@ -46,12 +47,11 @@ export function BoardColumn({
 	// Local draft state for new task
 	const [isCreating, setIsCreating] = useState(false);
 
-	const qc = wrpc.useUtils();
-	const storeTodo = wrpc.useMutation("storeTodo", {
+	const invalidateTodos = useInvalidateTodos();
+	const storeTodo = wrpc.useMutation("todo.storeTodo", {
 		onSuccess: () => {
 			setIsCreating(false);
-			// Refresh todos list
-			qc.invalidate("fetchTodos");
+			invalidateTodos();
 		},
 		onError: (error) => console.error("Error creating todo:", error),
 	});

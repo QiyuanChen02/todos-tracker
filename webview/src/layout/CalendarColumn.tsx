@@ -1,14 +1,14 @@
 import { useDroppable } from "@dnd-kit/react";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-import type { SchemaTypes } from "../../../src/database/schema";
+import type { Todo } from "../../../src/storage/schema";
 import { cn } from "../utils/cn";
 import { CalendarTodoCard } from "./CalendarTodoCard";
 
 interface CalendarColumnProps {
 	day: Dayjs;
-	todos: SchemaTypes["todos"][];
-	onOpenDetails?: (todo: SchemaTypes["todos"]) => void;
+	todos: Todo[];
+	onOpenDetails?: (todo: Todo) => void;
 	onAddTodo?: (day: Dayjs) => void;
 	isFirst: boolean;
 	isLast: boolean;
@@ -75,15 +75,26 @@ export function CalendarColumn({
 				ref={ref}
 				className="flex-1 p-2 bg-column-bg overflow-y-auto space-y-2"
 			>
-				{todos.map((todo, index) => (
-					<CalendarTodoCard
-						key={todo.id}
-						todo={todo}
-						index={index}
-						columnId={dayKey}
-						onOpenDetails={onOpenDetails}
-					/>
-				))}
+				   {/* Runtime check for duplicate IDs */}
+				   {(() => {
+					   const seen = new Set();
+					   for (const t of todos) {
+						   if (seen.has(t.id)) {
+							   // eslint-disable-next-line no-console
+							   console.error("Duplicate todo id in column", dayKey, t.id, todos);
+						   }
+						   seen.add(t.id);
+					   }
+					   return null;
+				   })()}
+				   {todos.map((todo) => (
+					   <CalendarTodoCard
+						   key={todo.id}
+						   todo={todo}
+						   columnId={dayKey}
+						   onOpenDetails={onOpenDetails}
+					   />
+				   ))}
 			</div>
 		</div>
 	);

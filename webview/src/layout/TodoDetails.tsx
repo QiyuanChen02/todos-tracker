@@ -12,8 +12,8 @@ function formatDate(dateString?: string) {
 	return date.format("MMMM D, YYYY");
 }
 
-import type { SchemaTypes } from "../../../src/database/schema";
-import { todoSchema } from "../../../src/database/schema";
+import type { Todo } from "../../../src/storage/schema";
+import { todoSchema } from "../../../src/storage/schema";
 import { ResizingTextarea } from "../components/ResizingTextarea";
 import { Tag } from "../components/Tags";
 import {
@@ -32,22 +32,23 @@ type Properties = {
 };
 
 // Extract the literal types from the schema
-type TodoStatus = SchemaTypes["todos"]["status"];
-type TodoPriority = SchemaTypes["todos"]["priority"];
+type TodoStatus = Todo["status"];
+type TodoPriority = Todo["priority"];
 
 const statusOptions: TodoStatus[] = todoSchema.shape.status.options;
 const priorityOptions: TodoPriority[] = todoSchema.shape.priority.options;
 
 type TodoDetailsProps = {
 	todoId: string;
+	autoFocusTitle?: boolean;
 };
 
-export function TodoDetails({ todoId }: TodoDetailsProps) {
+export function TodoDetails({ todoId, autoFocusTitle }: TodoDetailsProps) {
 	const [showCalendar, setShowCalendar] = useState(false);
 	const titleId = useId();
 	const commentsId = useId();
 
-	const { data: todos } = wrpc.useQuery("fetchTodos");
+	const { data: todos } = wrpc.useQuery("todo.fetchTodos");
 	const todo = todos?.find((t) => t.id === todoId);
 	const [title, setTitle] = useState(todo?.title || "");
 	const [comments, setComments] = useState(todo?.comments || "");
@@ -130,6 +131,7 @@ export function TodoDetails({ todoId }: TodoDetailsProps) {
 				placeholder="Task title..."
 				className="text-2xl pb-4 font-bold text-text bg-background"
 				minHeight="2.5rem"
+				autoFocus={!!autoFocusTitle}
 			/>
 			{/* Properties grid */}
 			<div className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-4 pt-2">

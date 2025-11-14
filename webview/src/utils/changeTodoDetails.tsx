@@ -1,15 +1,14 @@
-import type { SchemaTypes } from "../../../src/database/schema";
+import type { Todo } from "../../../src/storage/schema";
 import { wrpc } from "../wrpc";
+import { useInvalidateTodos } from "./invalidateTodos";
 
-type TodoStatus = SchemaTypes["todos"]["status"];
-type TodoPriority = SchemaTypes["todos"]["priority"];
+type TodoStatus = Todo["status"];
+type TodoPriority = Todo["priority"];
 
 export function useChangeTodoStatus() {
-	const qc = wrpc.useUtils();
-	const mutation = wrpc.useMutation("changeTodoStatus", {
-		onSuccess: () => {
-			qc.invalidate("fetchTodos");
-		},
+	const invalidateTodos = useInvalidateTodos();
+	const mutation = wrpc.useMutation("todo.changeTodoStatus", {
+		onSuccess: invalidateTodos,
 	});
 
 	const handleStatusChange = (todoId: string, newStatus: TodoStatus) => {
@@ -23,11 +22,9 @@ export function useChangeTodoStatus() {
 }
 
 export function useChangeTodoPriority() {
-	const qc = wrpc.useUtils();
-	const mutation = wrpc.useMutation("changeTodoPriority", {
-		onSuccess: () => {
-			qc.invalidate("fetchTodos");
-		},
+	const invalidateTodos = useInvalidateTodos();
+	const mutation = wrpc.useMutation("todo.changeTodoPriority", {
+		onSuccess: invalidateTodos,
 	});
 
 	const handlePriorityChange = (todoId: string, newPriority: TodoPriority) => {
@@ -41,11 +38,9 @@ export function useChangeTodoPriority() {
 }
 
 export function useChangeTodoDeadline() {
-	const qc = wrpc.useUtils();
-	const mutation = wrpc.useMutation("changeTodoDeadline", {
-		onSuccess: () => {
-			qc.invalidate("fetchTodos");
-		},
+	const invalidateTodos = useInvalidateTodos();
+	const mutation = wrpc.useMutation("todo.changeTodoDeadline", {
+		onSuccess: invalidateTodos,
 	});
 
 	const handleDeadlineChange = (todoId: string, date: Date | undefined) => {
@@ -61,11 +56,9 @@ export function useChangeTodoDeadline() {
 }
 
 export function useChangeTodoComments() {
-	const qc = wrpc.useUtils();
-	const mutation = wrpc.useMutation("changeTodoComments", {
-		onSuccess: () => {
-			qc.invalidate("fetchTodos");
-		},
+	const invalidateTodos = useInvalidateTodos();
+	const mutation = wrpc.useMutation("todo.changeTodoComments", {
+		onSuccess: invalidateTodos,
 	});
 
 	const handleCommentsChange = (todoId: string, comments: string) => {
@@ -79,11 +72,9 @@ export function useChangeTodoComments() {
 }
 
 export function useChangeTodoTitle() {
-	const qc = wrpc.useUtils();
-	const mutation = wrpc.useMutation("changeTodoTitle", {
-		onSuccess: () => {
-			qc.invalidate("fetchTodos");
-		},
+	const invalidateTodos = useInvalidateTodos();
+	const mutation = wrpc.useMutation("todo.changeTodoTitle", {
+		onSuccess: invalidateTodos,
 	});
 
 	const handleTitleChange = (todoId: string, newTitle: string) => {

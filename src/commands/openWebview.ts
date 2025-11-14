@@ -1,36 +1,25 @@
 import * as path from "node:path";
 import { attachRouterToPanel } from "@webview-rpc/host";
 import * as vscode from "vscode";
-import { createDatabase, type Database } from "../database/createDatabase.js";
-import { schemas } from "../database/schema.js";
 import { getWebviewContent } from "../helpers/getWebviewContent.js";
 import { appRouter, type Context } from "../router/router.js";
 
 let currentPanel: vscode.WebviewPanel | undefined;
-let db: Database<typeof schemas> | undefined;
 
 /**
  * Registers the command that opens (or reveals) the Todos Tracker webview panel.
  * Command id: todos-tracker.openTodos
- *
- * This registration is lightweight - the heavy initialization (database, router, etc.)
- * only happens when the command is first invoked.
  */
 export function registerOpenWebviewCommand(context: vscode.ExtensionContext) {
 	const disposable = vscode.commands.registerCommand(
 		"todos-tracker.openTodos",
 		async () => {
-			if (!db) {
-				db = createDatabase(context, schemas);
-				console.log("Todos Tracker: Database initialized");
-			}
-
 			if (currentPanel) {
 				currentPanel.reveal(vscode.ViewColumn.One);
 				return;
 			}
 
-			await openWebviewPanel(context, db);
+			await openWebviewPanel(context);
 		},
 	);
 
@@ -40,10 +29,7 @@ export function registerOpenWebviewCommand(context: vscode.ExtensionContext) {
 /**
  * Opens the webview panel with the todos tracker UI.
  */
-async function openWebviewPanel(
-	context: vscode.ExtensionContext,
-	database: Database<typeof schemas>,
-) {
+async function openWebviewPanel(context: vscode.ExtensionContext) {
 	currentPanel = vscode.window.createWebviewPanel(
 		"todosTracker",
 		"Todos Tracker",
@@ -72,7 +58,6 @@ async function openWebviewPanel(
 
 	attachRouterToPanel<Context>(appRouter, currentPanel, {
 		vsContext: context,
-		db: database,
 	});
 
 	currentPanel.onDidDispose(

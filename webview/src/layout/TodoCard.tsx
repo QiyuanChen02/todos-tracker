@@ -1,17 +1,18 @@
 import { useSortable } from "@dnd-kit/react/sortable";
 import { useState } from "react";
-import type { SchemaTypes } from "../../../src/database/schema";
+import type { Todo } from "../../../src/storage/schema";
 import { IconButton } from "../components/IconButton";
 import { TodoInput } from "../components/TodoInput";
 import { useChangeTodoTitle } from "../utils/changeTodoDetails";
 import { cn } from "../utils/cn";
+import { useInvalidateTodos } from "../utils/invalidateTodos";
 import { wrpc } from "../wrpc";
 
 type TodoCardProps = {
 	index: number;
 	columnId: string;
-	todo: SchemaTypes["todos"];
-	onOpenDetails?: (todo: SchemaTypes["todos"]) => void;
+	todo: Todo;
+	onOpenDetails?: (todo: Todo) => void;
 };
 
 export function TodoCard({
@@ -28,12 +29,12 @@ export function TodoCard({
 
 	const { title } = todo;
 
-	const utils = wrpc.useUtils();
+	const invalidateTodos = useInvalidateTodos();
 
 	const { handleTitleChange } = useChangeTodoTitle();
 
-	const deleteTodo = wrpc.useMutation("deleteTodo", {
-		onSuccess: () => utils.invalidate("fetchTodos"),
+	const deleteTodo = wrpc.useMutation("todo.deleteTodo", {
+		onSuccess: invalidateTodos,
 	});
 
 	const [isEditing, setIsEditing] = useState(false);
@@ -99,9 +100,15 @@ export function TodoCard({
 					</div>
 					<div className="space-y-3 min-h-5">
 						<div className="flex items-start justify-between gap-2">
-							<h3 className="text-sm font-semibold text-text flex-1 wrap-break-word">
-								{title}
-							</h3>
+							{title.trim() ? (
+								<h3 className="text-sm font-semibold text-text flex-1 wrap-break-word">
+									{title}
+								</h3>
+							) : (
+								<h3 className="text-sm font-semibold text-muted-text italic flex-1 wrap-break-word">
+									Untitled task
+								</h3>
+							)}
 						</div>
 					</div>
 				</div>

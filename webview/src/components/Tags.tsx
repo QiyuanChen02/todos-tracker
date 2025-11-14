@@ -1,17 +1,17 @@
 import { useState } from "react";
-import type { SchemaTypes } from "../../../src/database/schema";
+import type { Todo } from "../../../src/storage/schema";
 import { cn } from "../utils/cn";
 import { Menu } from "./Menu";
 
 type TagColor = "red" | "yellow" | "green";
 
-const statusColorMap: Record<SchemaTypes["todos"]["status"], TagColor> = {
+const statusColorMap: Record<Todo["status"], TagColor> = {
 	todo: "red",
 	"in-progress": "yellow",
 	done: "green",
 };
 
-const priorityColorMap: Record<SchemaTypes["todos"]["priority"], TagColor> = {
+const priorityColorMap: Record<Todo["priority"], TagColor> = {
 	high: "red",
 	medium: "yellow",
 	low: "green",
@@ -25,8 +25,8 @@ const colorClassMap: Record<TagColor, string> = {
 
 // Map type to allowed values
 type TagTypeMap = {
-	status: SchemaTypes["todos"]["status"];
-	priority: SchemaTypes["todos"]["priority"];
+	status: Todo["status"];
+	priority: Todo["priority"];
 };
 
 type TagType = keyof TagTypeMap;
@@ -58,8 +58,8 @@ export function Tag<T extends TagType>({
 	// Get the color based on the type and text
 	const colorKey =
 		type === "status"
-			? statusColorMap[text as SchemaTypes["todos"]["status"]]
-			: priorityColorMap[text as SchemaTypes["todos"]["priority"]];
+			? statusColorMap[text as Todo["status"]]
+			: priorityColorMap[text as Todo["priority"]];
 
 	const colorClass = colorClassMap[colorKey];
 
