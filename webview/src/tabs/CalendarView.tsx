@@ -18,27 +18,19 @@ export function CalendarView() {
 	const { data: workspaceState } = wrpc.useQuery(
 		"workspaceState.getWorkspaceState",
 	);
-	const updateWeek = wrpc.useMutation("workspaceState.updateCalendarWeek");
 
-	const [currentWeekStart, setCurrentWeekStart] = useState(() => {
-		// Use stored week if available, otherwise use current week
-		return dayjs().startOf("week");
+	const qc = wrpc.useUtils();
+	const updateWeek = wrpc.useMutation("workspaceState.updateCalendarWeek", {
+		onSuccess: () => qc.invalidate("workspaceState.getWorkspaceState"),
 	});
+
+	// Derive currentWeekStart from workspace state (not a state variable)
+	const currentWeekStart = workspaceState?.calendarWeek
+		? dayjs(workspaceState.calendarWeek).startOf("week")
+		: dayjs().startOf("week");
 
 	const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null);
 	const [createdTodoId, setCreatedTodoId] = useState<string | null>(null);
-
-	// Update currentWeekStart when workspace state loads
-	useEffect(() => {
-		if (workspaceState?.calendarWeek) {
-			setCurrentWeekStart(dayjs(workspaceState.calendarWeek).startOf("week"));
-		}
-	}, [workspaceState]);
-
-	// Persist week changes
-	useEffect(() => {
-		updateWeek.mutate({ week: currentWeekStart.toISOString() });
-	}, [currentWeekStart, updateWeek]);
 
 	const invalidateTodos = useInvalidateTodos();
 	const storeTodo = wrpc.useMutation("todo.storeTodo", {
@@ -53,15 +45,18 @@ export function CalendarView() {
 	};
 
 	const goToPreviousWeek = () => {
-		setCurrentWeekStart((prev) => prev.subtract(1, "week"));
+		const newWeek = currentWeekStart.subtract(1, "week");
+		updateWeek.mutate({ week: newWeek.toISOString() });
 	};
 
 	const goToToday = () => {
-		setCurrentWeekStart(dayjs().startOf("week"));
+		const newWeek = dayjs().startOf("week");
+		updateWeek.mutate({ week: newWeek.toISOString() });
 	};
 
 	const goToNextWeek = () => {
-		setCurrentWeekStart((prev) => prev.add(1, "week"));
+		const newWeek = currentWeekStart.add(1, "week");
+		updateWeek.mutate({ week: newWeek.toISOString() });
 	};
 
 	// Generate 7 days for the week

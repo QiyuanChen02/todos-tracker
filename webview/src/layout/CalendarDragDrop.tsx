@@ -41,7 +41,9 @@ export function CalendarDragDrop({
 		},
 	);
 
-	const changeDeadlineMutation = wrpc.useMutation("todo.changeTodoDeadline");
+	const changeDeadlineMutation = wrpc.useMutation("todo.changeTodoDeadline", {
+		onSuccess: invalidateTodos,
+	});
 
 	const saveColumnOrderMutation = wrpc.useMutation(
 		"calendar.saveCalendarColumnOrder",
@@ -49,20 +51,17 @@ export function CalendarDragDrop({
 
 	const [todoColumns, setTodoColumns] = useState<Record<DayKey, Todos>>({});
 
-	// Keep track of the day where the drag started and if we're actively dragging
+	// Keep track of the day where the drag started
 	const dragFromRef = useRef<DayKey | null>(null);
-	const isDraggingRef = useRef(false);
 
 	useEffect(() => {
-		// Don't update columns from server if we're in the middle of a drag operation
-		if (todosByColumns && !isDraggingRef.current) {
+		if (todosByColumns) {
 			setTodoColumns(todosByColumns);
 		}
 	}, [todosByColumns]);
 
 	const handleDragStart = (e: Parameters<DragDropEvents["dragstart"]>[0]) => {
 		const id = String(e?.operation?.source?.id);
-		isDraggingRef.current = true;
 		dragFromRef.current = findDayByTodoId(todoColumns, id);
 	};
 
@@ -74,8 +73,6 @@ export function CalendarDragDrop({
 		const todoId = String(e?.operation?.source?.id);
 		const from = dragFromRef.current;
 		const nextColumns = move(todoColumns, e);
-
-		// Optimistically update local state
 		setTodoColumns(nextColumns);
 
 		const to = findDayByTodoId(nextColumns, todoId);
@@ -91,23 +88,11 @@ export function CalendarDragDrop({
 		if (from && to && from !== to) {
 			// Set the deadline to the start of the day in ISO format
 			const newDeadline = dayjs(to).startOf("day").toISOString();
-			changeDeadlineMutation.mutate(
-				{
-					id: todoId,
-					newDeadline,
-				},
-				{
-					onSuccess: () => {
-						// Invalidate after drag completes
-						invalidateTodos();
-					},
-				},
-			);
+			changeDeadlineMutation.mutate({
+				id: todoId,
+				newDeadline,
+			});
 		}
-
-		// Reset drag state
-		isDraggingRef.current = false;
-		dragFromRef.current = null;
 	};
 
 	return (
