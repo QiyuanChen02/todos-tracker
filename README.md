@@ -5,10 +5,12 @@ A modern Kanban board and calendar for managing your coding tasks directly insid
 ## Features & Showcase
 
 - **Kanban Board:** Organize todos by status: To Do, In Progress, Done.
+
+![Kanban Board Demo](/assets/showcasekanban.gif)
+
 - **Calendar:** Plan and manage todos by week and day with drag-and-drop.
 
-![Kanban Board Demo](assets/showcasekanban.gif)
-![Calendar Demo](assets/showcasecalendar.gif)
+![Calendar Demo](/assets/showcasecalendar.gif)
 
 - **Task Details:** Click any task to open a details drawer with:
   - Status and Priority tags (editable)
@@ -16,7 +18,7 @@ A modern Kanban board and calendar for managing your coding tasks directly insid
   - Comments field for notes
   - Creation date
 
-![Task Details Demo](assets/showcasedetails.gif)
+![Task Details Demo](/assets/showcasedetails.gif)
 
 - **Status Bar Shortcut:** Instantly open the board from the VSCode status bar.
 - **Workspace Storage:** Tasks are automatically saved and loaded with your project—no setup, no fuss.
@@ -61,7 +63,7 @@ MIT © Qiyuan Chen
 
 ---
 
-**Enjoy staying organized in VSCode!**
+**Enjoy staying organised in VSCode!**
 
 **Attribution:**  
 Logo icon (`assets/logo.png`) by [Flaticon](https://www.flaticon.com/free-icons/kanban).

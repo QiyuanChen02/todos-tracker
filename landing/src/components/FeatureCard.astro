@@ -1,0 +1,48 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  icon: string;
+  color: "blue" | "purple" | "pink" | "cyan" | "green" | "orange";
+}
+
+const { title, description, icon, color } = Astro.props;
+
+const colorClasses = {
+  blue: "from-blue-500/10 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/20 text-blue-400",
+  purple:
+    "from-purple-500/10 border-purple-500/20 hover:border-purple-500/40 bg-purple-500/20 text-purple-400",
+  pink: "from-pink-500/10 border-pink-500/20 hover:border-pink-500/40 bg-pink-500/20 text-pink-400",
+  cyan: "from-cyan-500/10 border-cyan-500/20 hover:border-cyan-500/40 bg-cyan-500/20 text-cyan-400",
+  green:
+    "from-green-500/10 border-green-500/20 hover:border-green-500/40 bg-green-500/20 text-green-400",
+  orange:
+    "from-orange-500/10 border-orange-500/20 hover:border-orange-500/40 bg-orange-500/20 text-orange-400",
+};
+
+const [bgGradient, borderColor, hoverBorder, iconBg, iconColor] =
+  colorClasses[color].split(" ");
+---
+
+<div
+  class={`p-8 bg-linear-to-br ${bgGradient} to-transparent border ${borderColor} rounded-2xl ${hoverBorder} transition-all group`}
+>
+  <div
+    class={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+  >
+    <svg
+      class={`w-6 h-6 ${iconColor}`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d={icon}></path>
+    </svg>
+  </div>
+  <h3 class="text-2xl font-bold mb-2">{title}</h3>
+  <p class="text-gray-400">{description}</p>
+</div>

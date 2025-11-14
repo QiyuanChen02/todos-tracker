@@ -42,7 +42,7 @@ export async function saveKanbanColumnOrder(
 }
 
 /**
- * Get todos organized by kanban columns based on stored order
+ * Get todos organised by kanban columns based on stored order
  */
 export async function getKanbanTodosByColumns(
 	context: vscode.ExtensionContext,

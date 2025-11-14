@@ -1,0 +1,59 @@
+---
+import ShowcaseItem from "./ShowcaseItem.astro";
+---
+
+<section id="showcase" class="py-20 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-5xl font-bold mb-4">See It in Action</h2>
+      <p class="text-xl text-gray-400">
+        Watch how easy it is to manage your tasks
+      </p>
+    </div>
+
+    <div class="space-y-20">
+      <ShowcaseItem
+        title="Kanban Board"
+        description="Visualize your workflow with a beautiful drag-and-drop Kanban board. Move tasks between To Do, In Progress, and Done columns with ease."
+        imageSrc="/assets/showcasekanban.gif"
+        imageAlt="Kanban Board Demo"
+        gradient="bg-linear-to-r from-blue-400 to-purple-400"
+        glowGradient="bg-linear-to-r from-blue-500/10 to-purple-500/10"
+        bullets={[
+          { text: "Intuitive drag-and-drop interface", color: "blue" },
+          { text: "Quick task creation with Enter key", color: "purple" },
+          { text: "Visual status indicators", color: "pink" },
+        ]}
+      />
+
+      <ShowcaseItem
+        title="Calendar Planning"
+        description="Plan your week with the calendar view. Organize tasks by deadline and get a clear overview of what's coming up."
+        imageSrc="/assets/showcasecalendar.gif"
+        imageAlt="Calendar Demo"
+        gradient="bg-linear-to-r from-blue-400 via-purple-400 to-pink-400"
+        glowGradient="bg-linear-to-r from-purple-500/10 to-pink-500/10"
+        bullets={[
+          { text: "Week-by-week task organization", color: "blue" },
+          { text: "Drag tasks to change deadlines", color: "purple" },
+          { text: "Navigate weeks effortlessly", color: "pink" },
+        ]}
+        reverse={true}
+      />
+
+      <ShowcaseItem
+        title="Rich Task Details"
+        description="Click any task to open a beautiful details drawer. Edit everything from status and priority to deadlines and comments."
+        imageSrc="/assets/showcasedetails.gif"
+        imageAlt="Task Details Demo"
+        gradient="bg-linear-to-r from-blue-400 via-purple-400 to-pink-400"
+        glowGradient="bg-linear-to-r from-cyan-500/10 to-green-500/10"
+        bullets={[
+          { text: "Status and priority tags", color: "blue" },
+          { text: "Interactive deadline picker", color: "purple" },
+          { text: "Comments field for notes", color: "pink" },
+        ]}
+      />
+    </div>
+  </div>
+</section>

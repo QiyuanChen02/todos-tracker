@@ -1,0 +1,58 @@
+---
+import FeatureCard from "./FeatureCard.astro";
+---
+
+<section id="features" class="py-20 px-6 bg-[#0f0f0f]">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-5xl font-bold mb-4">Powerful Features</h2>
+      <p class="text-xl text-gray-400">
+        Everything you need to manage tasks efficiently
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <FeatureCard
+        title="Kanban Board"
+        description="Organize todos by status: To Do, In Progress, Done. Drag and drop tasks effortlessly between columns."
+        color="blue"
+        icon="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
+      />
+
+      <FeatureCard
+        title="Calendar View"
+        description="Plan and manage todos by week and day. Perfect for deadline-driven development workflows."
+        color="purple"
+        icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+      />
+
+      <FeatureCard
+        title="Rich Task Details"
+        description="Set status, priority, deadlines, and add detailed comments to every task with an elegant drawer interface."
+        color="pink"
+        icon="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+      />
+
+      <FeatureCard
+        title="Lightning Fast"
+        description="Built with React, Vite, and Tailwind for instant loading and smooth interactions. No lag, no frustration."
+        color="cyan"
+        icon="M13 10V3L4 14h7v7l9-11h-7z"
+      />
+
+      <FeatureCard
+        title="Workspace Storage"
+        description="Tasks are automatically saved per workspace. No cloud, no accounts, no setup required."
+        color="green"
+        icon="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"
+      />
+
+      <FeatureCard
+        title="Status Bar Shortcut"
+        description="Instantly access your board from the VSCode status bar. One click away from your tasks."
+        color="orange"
+        icon="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+      />
+    </div>
+  </div>
+</section>

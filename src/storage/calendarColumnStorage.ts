@@ -45,7 +45,7 @@ export async function saveCalendarColumnOrder(
 }
 
 /**
- * Get todos organized by calendar columns (days) based on stored order
+ * Get todos organised by calendar columns (days) based on stored order
  */
 export async function getCalendarTodosByColumns(
 	context: vscode.ExtensionContext,

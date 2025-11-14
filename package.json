@@ -1,7 +1,7 @@
 {
-	"name": "pretty-todo-tracker",
-	"displayName": "Pretty Todo Tracker",
-	"description": "Tracks your VSCode todo items and displays them in a pretty kanban board",
+	"name": "todos-tracker",
+	"displayName": "Todos Tracker",
+	"description": "A modern Kanban board and calendar for managing your coding tasks directly inside Visual Studio Code",
 	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.104.0"

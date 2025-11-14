@@ -9,5 +9,6 @@ src/**
 
 .yarn/**
 assets/**
+landing/**
 webview/**
 !webview/dist/**

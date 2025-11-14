@@ -33,7 +33,7 @@ export function CalendarDragDrop({
 	// Convert weekDays to array of YYYY-MM-DD strings
 	const weekDayKeys = weekDays.map((day) => day.format("YYYY-MM-DD"));
 
-	// Fetch todos organized by calendar columns (uses stored order if available)
+	// Fetch todos organised by calendar columns (uses stored order if available)
 	const { data: todosByColumns } = wrpc.useQuery(
 		"calendar.fetchCalendarTodosByColumns",
 		{

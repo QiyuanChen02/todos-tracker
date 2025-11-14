@@ -1,0 +1,47 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Todos Tracker - Modern Task Management for VSCode",
+  description = "A beautiful Kanban board and calendar for managing your coding tasks directly inside Visual Studio Code.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class="bg-[#0a0a0a] text-white">
+    <slot />
+
+    <style>
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in {
+        animation: fade-in 1s ease-out;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </body>
+</html>
