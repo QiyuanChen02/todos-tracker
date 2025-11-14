@@ -1,0 +1,4 @@
+[build]
+  base = "landing"      # Netlify runs install/build inside /landing
+  command = "npm run build"
+  publish = "dist"      # relative to base -> /landing/dist

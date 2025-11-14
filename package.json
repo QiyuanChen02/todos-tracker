@@ -2,7 +2,7 @@
 	"name": "todos-tracker",
 	"displayName": "Todos Tracker",
 	"description": "A modern Kanban board and calendar for managing your coding tasks directly inside Visual Studio Code",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.104.0"
 	},
@@ -14,7 +14,7 @@
 		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
-	"icon": "logo.png",
+	"icon": "newlogo.png",
 	"publisher": "qiyuanchen",
 	"repository": {
 		"type": "git",
@@ -29,11 +29,11 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "yarn run compile && yarn run build-webview",
+		"vscode:prepublish": "npm run compile && npm run build-webview",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"upgrade-wrpc": "yarn up @webview-rpc/host && cd webview && yarn up @webview-rpc/client @webview-rpc/react-query && cd ..",
-		"build-webview": "cd webview && yarn build && cd .."
+		"upgrade-wrpc": "npm up @webview-rpc/host && cd webview && npm up @webview-rpc/client @webview-rpc/react-query && cd ..",
+		"build-webview": "cd webview && npm run build && cd .."
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.6",

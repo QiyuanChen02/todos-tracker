@@ -7,7 +7,6 @@ src/**
 **/*.ts
 **/.vscode-test.*
 
-.yarn/**
 assets/**
 landing/**
 webview/**

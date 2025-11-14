@@ -1,4 +1,0 @@
-# /landing/netlify.toml
-[build]
-  command = "npm run build"        # or "pnpm build" / "yarn build"
-  publish = "dist"                 # Astro’s static output
