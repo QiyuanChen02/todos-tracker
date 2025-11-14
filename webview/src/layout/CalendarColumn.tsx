@@ -75,26 +75,15 @@ export function CalendarColumn({
 				ref={ref}
 				className="flex-1 p-2 bg-column-bg overflow-y-auto space-y-2"
 			>
-				   {/* Runtime check for duplicate IDs */}
-				   {(() => {
-					   const seen = new Set();
-					   for (const t of todos) {
-						   if (seen.has(t.id)) {
-							   // eslint-disable-next-line no-console
-							   console.error("Duplicate todo id in column", dayKey, t.id, todos);
-						   }
-						   seen.add(t.id);
-					   }
-					   return null;
-				   })()}
-				   {todos.map((todo) => (
-					   <CalendarTodoCard
-						   key={todo.id}
-						   todo={todo}
-						   columnId={dayKey}
-						   onOpenDetails={onOpenDetails}
-					   />
-				   ))}
+				{todos.map((todo, index) => (
+					<CalendarTodoCard
+						key={todo.id}
+						todo={todo}
+						index={index}
+						columnId={dayKey}
+						onOpenDetails={onOpenDetails}
+					/>
+				))}
 			</div>
 		</div>
 	);

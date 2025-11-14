@@ -1,8 +1,8 @@
 {
-	"name": "pretty-todo-kanban",
-	"displayName": "Pretty Todo Kanban",
+	"name": "pretty-todo-tracker",
+	"displayName": "Pretty Todo Tracker",
 	"description": "Tracks your VSCode todo items and displays them in a pretty kanban board",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.104.0"
 	},

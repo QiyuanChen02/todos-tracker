@@ -55,10 +55,22 @@ export async function getCalendarTodosByColumns(
 	const columnOrder = await getCalendarColumnOrder(context);
 
 	if (!columnOrder) {
+		// No stored order - organize todos by their deadline property
 		const result: Record<string, Todo[]> = {};
 		for (const dayKey of weekDays) {
 			result[dayKey] = [];
 		}
+
+		// Add todos to their respective day columns based on deadline
+		for (const todo of allTodos) {
+			if (todo.deadline) {
+				const dateKey = todo.deadline.split("T")[0]; // Extract YYYY-MM-DD
+				if (weekDays.includes(dateKey)) {
+					result[dateKey].push(todo);
+				}
+			}
+		}
+
 		return result;
 	}
 

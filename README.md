@@ -1,14 +1,14 @@
 # Todos Tracker VSCode Extension
 
-A modern Kanban board for managing your coding tasks directly inside Visual Studio Code.
+A modern Kanban board and calendar for managing your coding tasks directly inside Visual Studio Code.
 
 ## Features & Showcase
 
-- **Kanban Board:** Organize todos into columns: To Do, In Progress, and Done.
-- **Drag & Drop:** Move tasks between columns with intuitive drag-and-drop.
-- **Quick Add & Edit:** Create new tasks, edit titles inline, and delete tasks easily.
+- **Kanban Board:** Organize todos by status: To Do, In Progress, Done.
+- **Calendar:** Plan and manage todos by week and day with drag-and-drop.
 
-![Kanban Board Demo](assets/showcase1.gif)
+![Kanban Board Demo](assets/showcasekanban.gif)
+![Calendar Demo](assets/showcasecalendar.gif)
 
 - **Task Details:** Click any task to open a details drawer with:
   - Status and Priority tags (editable)
@@ -16,7 +16,7 @@ A modern Kanban board for managing your coding tasks directly inside Visual Stud
   - Comments field for notes
   - Creation date
 
-![Task Details Demo](assets/showcase2.gif)
+![Task Details Demo](assets/showcasedetails.gif)
 
 - **Status Bar Shortcut:** Instantly open the board from the VSCode status bar.
 - **Workspace Storage:** Tasks are automatically saved and loaded with your project—no setup, no fuss.
@@ -40,6 +40,10 @@ _No configuration required._
 All data is stored per workspace.
 
 ## Release Notes
+
+### 0.0.2
+
+- Calendar implementation, bug fixes
 
 ### 0.0.1
 

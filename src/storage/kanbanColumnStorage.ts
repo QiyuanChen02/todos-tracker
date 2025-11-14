@@ -51,10 +51,11 @@ export async function getKanbanTodosByColumns(
 	const columnOrder = await getKanbanColumnOrder(context);
 
 	if (!columnOrder) {
+		// No stored order - organize todos by their status property
 		return {
-			todo: [],
-			"in-progress": [],
-			done: [],
+			todo: allTodos.filter((t) => t.status === "todo"),
+			"in-progress": allTodos.filter((t) => t.status === "in-progress"),
+			done: allTodos.filter((t) => t.status === "done"),
 		};
 	}
 

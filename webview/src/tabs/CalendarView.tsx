@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Todo } from "../../../src/storage/schema";
 import { Drawer } from "../components/Drawer";
 import { IconButton } from "../components/IconButton";
@@ -66,7 +66,7 @@ export function CalendarView() {
 
 	const handleAddTodo = (day: dayjs.Dayjs) => {
 		storeTodo.mutate({
-			title: "New Task",
+			title: "",
 			status: "todo",
 			priority: "medium",
 			deadline: day.startOf("day").toISOString(),
