@@ -19,6 +19,44 @@ const {
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://vscode-todos-tracker.netlify.app/"
+    />
+    <meta
+      property="og:title"
+      content="Todos Tracker – Kanban & Calendar for VSCode"
+    />
+    <meta
+      property="og:description"
+      content="A modern Kanban board and calendar for managing your coding tasks directly inside Visual Studio Code."
+    />
+    <meta
+      property="og:image"
+      content="https://vscode-todos-tracker.netlify.app/assets/showcasekanban.gif"
+    />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:url"
+      content="https://vscode-todos-tracker.netlify.app/"
+    />
+    <meta
+      name="twitter:title"
+      content="Todos Tracker – Kanban & Calendar for VSCode"
+    />
+    <meta
+      name="twitter:description"
+      content="A modern Kanban board and calendar for managing your coding tasks directly inside Visual Studio Code."
+    />
+    <meta
+      name="twitter:image"
+      content="https://vscode-todos-tracker.netlify.app/assets/showcasekanban.gif"
+    />
   </head>
   <body class="bg-[#0a0a0a] text-white">
     <slot />
