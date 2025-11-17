@@ -41,11 +41,38 @@
         class="rounded-2xl border border-white/10 overflow-hidden shadow-2xl"
       >
         <img
-          src="/assets/showcasekanban.gif"
+          id="kanban-demo-img"
+          src="/assets/kanbanframe0.png"
           alt="Kanban Board Demo"
           class="w-full"
+          loading="lazy"
         />
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  // Swap static image for GIF when the image is scrolled into view
+  document.addEventListener("DOMContentLoaded", () => {
+    const img = document.getElementById(
+      "kanban-demo-img"
+    ) as unknown as HTMLImageElement | null;
+
+    let swapped = false;
+    function onScroll() {
+      if (swapped) return;
+      if (!img) return;
+      const rect = img.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        img.src = "/assets/showcasekanban.gif";
+        swapped = true;
+        window.removeEventListener("scroll", onScroll);
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    // In case it's already in view on load
+    onScroll();
+  });
+</script>

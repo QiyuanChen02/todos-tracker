@@ -26,7 +26,29 @@
       </div>
       <span class="text-xl font-bold">Todos Tracker</span>
     </div>
-    <div class="flex items-center gap-6">
+
+    <!-- Mobile menu button -->
+    <button
+      id="mobile-menu-button"
+      class="md:hidden text-gray-300 hover:text-white transition-colors"
+      aria-label="Toggle menu"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <!-- Desktop menu -->
+    <div class="hidden md:flex items-center gap-6">
       <a
         href="#features"
         class="text-gray-300 hover:text-white transition-colors">Features</a
@@ -49,4 +71,52 @@
       </a>
     </div>
   </div>
+
+  <!-- Mobile menu -->
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden bg-[#0a0a0a]/95 backdrop-blur-lg border-t border-white/10"
+  >
+    <div class="px-6 py-4 flex flex-col gap-4">
+      <a
+        href="#features"
+        class="text-gray-300 hover:text-white transition-colors py-2"
+        >Features</a
+      >
+      <a
+        href="#showcase"
+        class="text-gray-300 hover:text-white transition-colors py-2"
+        >Showcase</a
+      >
+      <a
+        href="https://github.com/QiyuanChen02/todos-tracker"
+        target="_blank"
+        class="text-gray-300 hover:text-white transition-colors py-2">GitHub</a
+      >
+      <a
+        href="https://marketplace.visualstudio.com/items?itemName=qiyuanchen.todos-tracker"
+        target="_blank"
+        class="px-6 py-2 bg-linear-to-r from-blue-500 to-purple-600 rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all text-center"
+      >
+        Install Now
+      </a>
+    </div>
+  </div>
 </nav>
+
+<script>
+  const menuButton = document.getElementById("mobile-menu-button");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  menuButton?.addEventListener("click", () => {
+    mobileMenu?.classList.toggle("hidden");
+  });
+
+  // Close menu when clicking a link
+  const menuLinks = mobileMenu?.querySelectorAll("a");
+  menuLinks?.forEach((link) => {
+    link.addEventListener("click", () => {
+      mobileMenu?.classList.add("hidden");
+    });
+  });
+</script>
